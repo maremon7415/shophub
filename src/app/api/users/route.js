@@ -88,7 +88,7 @@ export async function PUT(request) {
       const updatedUser = await User.findByIdAndUpdate(
         id,
         { ...data, updatedAt: new Date() },
-        { new: true },
+        { returnDocument: 'after' },
       ).select("-password");
 
       return NextResponse.json(updatedUser);
@@ -96,7 +96,7 @@ export async function PUT(request) {
       const updatedUser = await User.findByIdAndUpdate(
         authUser.userId,
         { ...data, updatedAt: new Date() },
-        { new: true },
+        { returnDocument: 'after' },
       ).select("-password");
 
       return NextResponse.json(updatedUser);

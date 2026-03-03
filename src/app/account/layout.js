@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store';
+import MobileBottomNav from '@/components/customer/MobileBottomNav';
 import { FiUser, FiPackage, FiHeart, FiSettings, FiLogOut, FiMenu, FiX, FiChevronRight } from 'react-icons/fi';
 
 export default function AccountLayout({ children }) {
@@ -101,6 +102,7 @@ export default function AccountLayout({ children }) {
           </div>
         </div>
       </div>
+      <MobileBottomNav />
     </div>
   );
 }

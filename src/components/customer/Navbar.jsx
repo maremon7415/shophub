@@ -15,6 +15,7 @@ export default function Navbar() {
   const [isCategoriesExpanded, setIsCategoriesExpanded] = useState(false);
   const [categories, setCategories] = useState([]);
   const pathname = usePathname();
+  const isHomePage = pathname === '/';
 
   const cartItems = useCartStore((state) => state.items);
   const wishlistItems = useWishlistStore((state) => state.items);
@@ -51,12 +52,15 @@ export default function Navbar() {
   };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-soft py-3' : 'bg-transparent py-5 dark:bg-transparent'
-      }`}>
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 hidden lg:block ${
+      isHomePage 
+        ? (isScrolled ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-soft py-3' : 'bg-transparent dark:bg-transparent')
+        : 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-soft py-3'
+    }`}>
       <div className="container">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <span className="text-2xl font-bold font-display text-primary">
+            <span className="text-2xl font-bold font-display text-primary dark:text-white">
               Shop<span className="text-accent">Hub</span>
             </span>
           </Link>

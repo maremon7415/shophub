@@ -45,7 +45,7 @@ export async function PUT(request, { params }) {
     const updatedCoupon = await Coupon.findByIdAndUpdate(
       id,
       { ...body, updatedAt: Date.now() },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     return NextResponse.json({

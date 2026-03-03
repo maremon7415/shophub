@@ -1,6 +1,7 @@
 import Navbar from '@/components/customer/Navbar';
 import Footer from '@/components/customer/Footer';
 import WishlistContent from '@/components/customer/WishlistContent';
+import MobileBottomNav from '@/components/customer/MobileBottomNav';
 
 export const metadata = {
   title: 'My Wishlist',
@@ -14,6 +15,7 @@ export default function WishlistPage() {
         <WishlistContent />
       </div>
       <Footer />
+      <MobileBottomNav />
     </main>
   );
 }

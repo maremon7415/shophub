@@ -1,6 +1,7 @@
 import Navbar from '@/components/customer/Navbar';
 import Footer from '@/components/customer/Footer';
 import CollectionsContent from '@/components/customer/CollectionsContent';
+import MobileBottomNav from '@/components/customer/MobileBottomNav';
 
 export const metadata = {
   title: 'Shop All Products',
@@ -15,6 +16,7 @@ export default function CollectionsPage() {
         <CollectionsContent />
       </div>
       <Footer />
+      <MobileBottomNav />
     </main>
   );
 }

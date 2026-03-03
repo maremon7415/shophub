@@ -6,6 +6,7 @@ import CategorySection from '@/components/customer/CategorySection';
 import PromoSection from '@/components/customer/PromoSection';
 import Testimonials from '@/components/customer/Testimonials';
 import Newsletter from '@/components/customer/Newsletter';
+import MobileBottomNav from '@/components/customer/MobileBottomNav';
 
 export default function HomePage() {
   return (
@@ -18,6 +19,7 @@ export default function HomePage() {
       <Testimonials />
       <Newsletter />
       <Footer />
+      <MobileBottomNav />
     </main>
   );
 }

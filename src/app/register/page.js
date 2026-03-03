@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FiMail, FiLock, FiUser, FiPhone, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuthStore } from '@/store';
+import MobileBottomNav from '@/components/customer/MobileBottomNav';
 import toast from 'react-hot-toast';
 
 export default function RegisterPage() {
@@ -174,7 +175,7 @@ export default function RegisterPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Already have an account?{' '}
               <Link href="/login" className="text-accent hover:underline font-medium">
                 Sign in
@@ -183,6 +184,7 @@ export default function RegisterPage() {
           </div>
         </div>
       </div>
+      <MobileBottomNav />
     </div>
   );
 }

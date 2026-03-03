@@ -328,22 +328,23 @@ export default function AccountPage() {
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden">
-        <div className="border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
-          <div className="flex whitespace-nowrap p-2">
+        <div className="border-b border-gray-200 dark:border-gray-700 overflow-x-auto scrollbar-hide">
+          <div className="flex whitespace-nowrap p-2 min-w-max">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${
+                  className={`flex items-center gap-2 px-3 py-2.5 md:px-4 md:py-3 rounded-lg font-medium transition-all text-sm md:text-base ${
                     activeTab === tab.id ?
                       "bg-amber-500 text-white"
                     : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700"
                   }`}
                 >
-                  <Icon size={18} />
-                  <span>{tab.label}</span>
+                  <Icon size={16} className="md:w-[18px] md:h-[18px]" />
+                  <span className="hidden xs:inline">{tab.label}</span>
+                  <span className="xs:hidden">{tab.id === 'profile' ? 'Profile' : tab.id === 'orders' ? 'Orders' : tab.id === 'addresses' ? 'Address' : 'Pass'}</span>
                 </button>
               );
             })}
@@ -356,19 +357,20 @@ export default function AccountPage() {
               onSubmit={handleUpdateProfile}
               className="space-y-8 max-w-2xl animate-fade-in"
             >
-              <div className="flex flex-col sm:flex-row items-center gap-6 p-6 bg-linear-to-br from-amber-50 to-orange-50 dark:from-slate-800/80 dark:to-slate-800 border border-amber-100 dark:border-slate-700 rounded-2xl shadow-sm">
-                <div className="w-24 h-24 bg-linear-to-br from-amber-400 to-orange-600 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-soft ring-4 ring-white dark:ring-slate-900 group relative">
+              <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-6 p-4 md:p-6 bg-linear-to-br from-amber-50 to-orange-50 dark:from-slate-800/80 dark:to-slate-800 border border-amber-100 dark:border-slate-700 rounded-2xl shadow-sm">
+                <div className="w-20 h-20 md:w-24 md:h-24 bg-linear-to-br from-amber-400 to-orange-600 rounded-full flex items-center justify-center text-white text-3xl md:text-4xl font-bold shadow-soft ring-4 ring-white dark:ring-slate-900 group relative shrink-0">
                   {profile.name?.charAt(0).toUpperCase() || "U"}
                   <div className="absolute inset-0 bg-black/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                    <FiEdit2 size={24} className="text-white drop-shadow-md" />
+                    <FiEdit2 size={20} className="text-white drop-shadow-md md:size-24" />
                   </div>
                 </div>
                 <div className="text-center sm:text-left flex-1">
-                  <h3 className="font-bold text-2xl text-gray-900 dark:text-white mb-1">
+                  <h3 className="font-bold text-xl md:text-2xl text-gray-900 dark:text-white mb-1">
                     {profile.name}
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-400 flex items-center justify-center sm:justify-start gap-2">
-                    <FiMail className="text-amber-500" /> {profile.email}
+                  <p className="text-gray-500 dark:text-gray-400 flex items-center justify-center sm:justify-start gap-2 text-sm md:text-base">
+                    <FiMail className="text-amber-500 shrink-0" /> 
+                    <span className="truncate max-w-[200px] md:max-w-none">{profile.email}</span>
                   </p>
                 </div>
               </div>
@@ -531,23 +533,23 @@ export default function AccountPage() {
                     <FiPlus className="mr-2" /> Add Address
                   </button>
                 </div>
-              : <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              : <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {addresses.map((address) => (
                     <div
                       key={address._id}
                       className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl"
                     >
-                      <div className="flex items-start justify-between mb-2">
-                        <span className="font-medium dark:text-white">
+                      <div className="flex items-start justify-between mb-2 gap-2">
+                        <span className="font-medium dark:text-white truncate">
                           {address.fullName}
                         </span>
                         {address.isDefault && (
-                          <span className="badge bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+                          <span className="badge bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 shrink-0 text-xs">
                             Default
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                         {address.street}
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">

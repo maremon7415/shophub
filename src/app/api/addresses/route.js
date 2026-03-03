@@ -55,7 +55,7 @@ export async function POST(request) {
     const userData = await User.findByIdAndUpdate(
       user.userId,
       { $push: { addresses: body } },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     const newAddress = userData.addresses[userData.addresses.length - 1];

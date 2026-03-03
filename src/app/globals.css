@@ -357,6 +357,26 @@ img {
     text-wrap: balance;
   }
 
+  .xs\:inline {
+    display: none;
+  }
+  
+  @media (min-width: 480px) {
+    .xs\:inline {
+      display: inline;
+    }
+  }
+
+  .xs\:hidden {
+    display: inline;
+  }
+  
+  @media (min-width: 480px) {
+    .xs\:hidden {
+      display: none;
+    }
+  }
+
   .animate-fade-in {
     animation: fadeIn 0.5s ease-in-out;
   }
@@ -509,3 +529,61 @@ img {
 
 .dark .border-gray-200 { border-color: #334155; }
 .dark .border-gray-300 { border-color: #475569; }
+
+.dark .text-gray-50 { color: #f9fafb !important; }
+.dark .text-gray-100 { color: #f3f4f6 !important; }
+.dark .text-gray-200 { color: #e5e7eb !important; }
+.dark .text-gray-300 { color: #d1d5db !important; }
+.dark .text-gray-400 { color: #9ca3af !important; }
+.dark .text-gray-500 { color: #6b7280 !important; }
+.dark .text-gray-600 { color: #4b5563 !important; }
+.dark .text-gray-700 { color: #374151 !important; }
+.dark .text-gray-800 { color: #1f2937 !important; }
+.dark .text-gray-900 { color: #111827 !important; }
+
+.dark .text-slate-50 { color: #f8fafc !important; }
+.dark .text-slate-100 { color: #f1f5f9 !important; }
+.dark .text-slate-200 { color: #e2e8f0 !important; }
+.dark .text-slate-300 { color: #cbd5e1 !important; }
+.dark .text-slate-400 { color: #94a3b8 !important; }
+.dark .text-slate-500 { color: #64748b !important; }
+.dark .text-slate-600 { color: #475569 !important; }
+.dark .text-slate-700 { color: #334155 !important; }
+.dark .text-slate-800 { color: #1e293b !important; }
+.dark .text-slate-900 { color: #0f172a !important; }
+
+:root {
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #4b5563;
+}
+
+.dark {
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+@media (max-width: 1023px) {
+  body {
+    padding-bottom: 4rem;
+  }
+}
+
+.dark .text-primary { color: var(--color-text-primary) !important; }
+.dark .text-secondary { color: var(--color-text-secondary) !important; }
+
+.dark [class*="text-gray"] {
+  color: inherit !important;
+}
+
+.dark .text-gray-400 { color: #9ca3af !important; }
+.dark .text-gray-500 { color: #9ca3af !important; }
+.dark .text-gray-600 { color: #d1d5db !important; }
+
+.dark body {
+  color: #e2e8f0;
+  background-color: #0f172a;
+}

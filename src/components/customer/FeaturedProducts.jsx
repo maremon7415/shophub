@@ -108,12 +108,12 @@ export default function FeaturedProducts() {
                 className="card group animate-fade-in"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="relative overflow-hidden">
+                <div className="relative overflow-hidden aspect-[4/3]">
                   <Link href={`/product/${product.slug}`}>
                     <img
                       src={product.images?.[0] || product.image}
                       alt={product.name}
-                      className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   </Link>
 

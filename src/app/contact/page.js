@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Navbar from "@/components/customer/Navbar";
 import Footer from "@/components/customer/Footer";
+import MobileBottomNav from "@/components/customer/MobileBottomNav";
 import { FiMail, FiPhone, FiMapPin, FiClock, FiSend } from "react-icons/fi";
 import toast from "react-hot-toast";
 
@@ -177,6 +178,7 @@ export default function ContactPage() {
         </div>
       </div>
       <Footer />
+      <MobileBottomNav />
     </main>
   );
 }

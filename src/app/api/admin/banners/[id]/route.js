@@ -34,7 +34,7 @@ export async function PUT(request, { params }) {
     const updatedBanner = await Banner.findByIdAndUpdate(
       id,
       { ...body, updatedAt: Date.now() },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     return NextResponse.json({

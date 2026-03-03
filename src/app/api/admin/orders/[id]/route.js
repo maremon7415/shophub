@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/lib/models/Order";
 import { verifyToken } from "@/lib/utils";
+import { sendOrderStatusUpdate } from "@/lib/email";
 
 export async function PUT(request, { params }) {
   try {
@@ -38,11 +39,22 @@ export async function PUT(request, { params }) {
     const order = await Order.findByIdAndUpdate(
       id,
       updateData,
-      { new: true }
+      { returnDocument: 'after' }
     ).populate("userId", "name email");
 
     if (!order) {
       return NextResponse.json({ message: "Order not found" }, { status: 404 });
+    }
+
+    const previousOrder = await Order.findById(id);
+    const previousStatus = previousOrder?.status;
+
+    if (data.status && data.status !== previousStatus) {
+      const userEmail = order.userId?.email || order.guestEmail;
+      if (userEmail) {
+        sendOrderStatusUpdate(userEmail, order, data.status)
+          .catch(err => console.error('Failed to send status update email:', err));
+      }
     }
 
     return NextResponse.json(order);

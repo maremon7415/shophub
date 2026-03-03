@@ -138,18 +138,36 @@ export default function CollectionsContent() {
   return (
     <div className="container">
       <div className="flex flex-col lg:flex-row gap-8">
+        {showFilters && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setShowFilters(false)}
+          />
+        )}
+        
         <aside className={`lg:w-64 ${showFilters ? 'block' : 'hidden'} lg:block`}>
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-card p-6 sticky top-28 transition-colors">
+          <div className={`bg-white dark:bg-slate-800 rounded-xl shadow-card p-6 lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto transition-colors
+            ${showFilters ? 'fixed top-0 left-0 h-full w-80 max-w-[85vw] z-50 overflow-y-auto rounded-none' : ''}`}>
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-semibold text-lg">Filters</h3>
-              {activeFiltersCount > 0 && (
-                <button
-                  onClick={clearFilters}
-                  className="text-sm text-red-500 hover:underline"
-                >
-                  Clear All ({activeFiltersCount})
-                </button>
-              )}
+              <div className="flex items-center gap-2">
+                {activeFiltersCount > 0 && (
+                  <button
+                    onClick={clearFilters}
+                    className="text-sm text-red-500 hover:underline"
+                  >
+                    Clear All ({activeFiltersCount})
+                  </button>
+                )}
+                {showFilters && (
+                  <button
+                    onClick={() => setShowFilters(false)}
+                    className="lg:hidden p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded"
+                  >
+                    <FiX size={20} />
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="space-y-6">
@@ -270,9 +288,14 @@ export default function CollectionsContent() {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="lg:hidden btn btn-outline py-2"
+                className="lg:hidden btn btn-outline py-2 relative"
               >
                 <FiFilter className="mr-2" /> Filters
+                {activeFiltersCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-white text-xs rounded-full flex items-center justify-center">
+                    {activeFiltersCount}
+                  </span>
+                )}
               </button>
 
               <select
@@ -328,12 +351,12 @@ export default function CollectionsContent() {
               <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
                 {products.map((product) => (
                   <div key={product._id} className="card group">
-                    <div className="relative overflow-hidden">
+                    <div className="relative overflow-hidden aspect-[4/3]">
                       <Link href={`/product/${product.slug}`}>
                         <img
                           src={product.images?.[0] || product.image}
                           alt={product.name}
-                          className={`w-full object-cover transition-transform duration-500 group-hover:scale-110 ${viewMode === 'grid' ? 'h-64' : 'h-48'
+                          className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${viewMode === 'grid' ? '' : 'lg:h-48'
                             }`}
                         />
                       </Link>

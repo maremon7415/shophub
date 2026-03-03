@@ -26,7 +26,7 @@ export async function PUT(request, { params }) {
     const category = await Category.findByIdAndUpdate(
       id,
       { ...data, updatedAt: new Date() },
-      { new: true },
+      { returnDocument: 'after' },
     );
 
     if (!category) {

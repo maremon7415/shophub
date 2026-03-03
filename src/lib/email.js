@@ -135,9 +135,82 @@ ShopHub Team
 
   try {
     await resend.emails.send({
-      from: 'ShopHub <noreply@shophub.com>',
+      from: `ShopHub <noreply@${process.env.NEXT_PUBLIC_EMAIL_DOMAIN}>`,
       to: email,
       subject: `Order Confirmed - #${order.orderNumber}`,
+      text: textContent,
+      html: htmlContent,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Email sending error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function sendPasswordResetEmail(email, resetToken) {
+  const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password?token=${resetToken}`;
+
+  const textContent = `
+Dear Customer,
+
+We received a request to reset your password.
+
+Click the link below to reset your password:
+${resetUrl}
+
+This link will expire in 1 hour.
+
+If you didn't request a password reset, please ignore this email.
+
+Best regards,
+ShopHub Team
+  `.trim();
+
+  const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 30px 20px; text-align: center; }
+    .header h1 { margin: 0; font-size: 24px; }
+    .content { padding: 30px 20px; background: #f9f9f9; }
+    .button { display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
+    .footer { text-align: center; padding: 25px 20px; color: #666; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Reset Your Password</h1>
+    </div>
+    <div class="content">
+      <p>Dear Customer,</p>
+      <p>We received a request to reset your password. Click the button below to create a new password:</p>
+      <div style="text-align: center;">
+        <a href="${resetUrl}" class="button">Reset Password</a>
+      </div>
+      <p style="margin-top: 20px;">Or copy and paste this link in your browser:</p>
+      <p style="word-break: break-all; color: #666;">${resetUrl}</p>
+      <p style="margin-top: 20px; color: #666; font-size: 13px;">This link will expire in 1 hour.</p>
+      <p style="margin-top: 20px;">If you didn't request a password reset, please ignore this email.</p>
+    </div>
+    <div class="footer">
+      <p><strong>ShopHub Team</strong></p>
+      <p style="font-size: 11px; margin-top: 15px; opacity: 0.7;">This is an automated email. Please do not reply.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: `ShopHub <noreply@${process.env.NEXT_PUBLIC_EMAIL_DOMAIN}>`,
+      to: email,
+      subject: 'Reset Your Password - ShopHub',
       text: textContent,
       html: htmlContent,
     });
@@ -225,7 +298,7 @@ ShopHub Team
 
   try {
     await resend.emails.send({
-      from: 'ShopHub <noreply@shophub.com>',
+      from: `ShopHub <noreply@${process.env.NEXT_PUBLIC_EMAIL_DOMAIN}>`,
       to: email,
       subject: `Order ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)} - #${order.orderNumber}`,
       text: textContent,

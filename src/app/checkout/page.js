@@ -13,6 +13,7 @@ import {
   FiMapPin,
 } from "react-icons/fi";
 import { useCartStore, useAuthStore } from "@/store";
+import MobileBottomNav from "@/components/customer/MobileBottomNav";
 import toast from "react-hot-toast";
 
 export default function CheckoutPage() {
@@ -699,6 +700,7 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+      <MobileBottomNav />
     </div>
   );
 }

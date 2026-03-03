@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuthStore } from '@/store';
+import MobileBottomNav from '@/components/customer/MobileBottomNav';
 import toast from 'react-hot-toast';
 
 export default function LoginPage() {
@@ -131,6 +132,7 @@ export default function LoginPage() {
           Demo Admin: admin@shophub.com / admin1212
         </p>
       </div>
+      <MobileBottomNav />
     </div>
   );
 }

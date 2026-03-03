@@ -30,7 +30,7 @@ export async function PUT(request, { params }) {
     const userData = await User.findOneAndUpdate(
       { _id: user.userId, "addresses._id": id },
       { $set: { "addresses.$": { ...body, _id: id } } },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!userData) {
@@ -74,7 +74,7 @@ export async function DELETE(request, { params }) {
     const userData = await User.findByIdAndUpdate(
       user.userId,
       { $pull: { addresses: { _id: id } } },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!userData) {

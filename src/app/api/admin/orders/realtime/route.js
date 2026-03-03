@@ -85,7 +85,7 @@ export async function POST(request) {
         ...(carrier && { carrier }),
         updatedAt: new Date()
       },
-      { new: true }
+      { returnDocument: 'after' }
     ).populate("userId", "name email");
 
     if (!order) {

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { FiSearch, FiX, FiShoppingCart, FiHeart, FiStar, FiFilter } from 'react-icons/fi';
 import { useCartStore, useWishlistStore } from '@/store';
+import MobileBottomNav from '@/components/customer/MobileBottomNav';
 import toast from 'react-hot-toast';
 
 export default function SearchPage() {
@@ -213,12 +214,12 @@ export default function SearchPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {results.map((product) => (
                   <div key={product._id} className="bg-white rounded-xl shadow-card overflow-hidden group">
-                    <div className="relative">
+                    <div className="relative aspect-[4/3]">
                       <Link href={`/product/${product.slug}`}>
                         <img
                           src={product.images?.[0] || product.image}
                           alt={product.name}
-                          className="w-full h-48 object-cover"
+                          className="w-full h-full object-cover"
                         />
                       </Link>
                       {product.comparePrice > product.price && (
@@ -289,6 +290,7 @@ export default function SearchPage() {
           )}
         </div>
       </div>
+      <MobileBottomNav />
     </div>
   );
 }

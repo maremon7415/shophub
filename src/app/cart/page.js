@@ -1,6 +1,7 @@
 import Navbar from '@/components/customer/Navbar';
 import Footer from '@/components/customer/Footer';
 import CartContent from '@/components/customer/CartContent';
+import MobileBottomNav from '@/components/customer/MobileBottomNav';
 
 export const metadata = {
   title: 'Shopping Cart',
@@ -14,6 +15,7 @@ export default function CartPage() {
         <CartContent />
       </div>
       <Footer />
+      <MobileBottomNav />
     </main>
   );
 }

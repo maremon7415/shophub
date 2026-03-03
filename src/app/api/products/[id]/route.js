@@ -59,7 +59,7 @@ export async function PUT(request, { params }) {
     const product = await Product.findByIdAndUpdate(
       id,
       { ...data, updatedAt: new Date() },
-      { new: true },
+      { returnDocument: 'after' },
     );
 
     if (!product) {
