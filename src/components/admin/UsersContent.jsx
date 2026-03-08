@@ -49,7 +49,8 @@ export default function UsersContent() {
 
   const handleUpdateUser = async (e) => {
     e.preventDefault();
-    
+    toast.error('Restricted by author');
+    return;
     try {
       const authStorage = localStorage.getItem('auth-storage');
       const token = authStorage ? JSON.parse(authStorage).state?.token : '';

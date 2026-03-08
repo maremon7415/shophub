@@ -55,7 +55,8 @@ export default function CouponsContent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    toast.error('Restricted by author');
+    return;
     try {
       const authStorage = localStorage.getItem('auth-storage');
       const token = authStorage ? JSON.parse(authStorage).state?.token : '';
@@ -102,8 +103,8 @@ export default function CouponsContent() {
   };
 
   const handleDelete = async (couponId) => {
-    if (!confirm('Are you sure you want to delete this coupon?')) return;
-    
+    toast.error('Restricted by author');
+    return;
     try {
       const authStorage = localStorage.getItem('auth-storage');
       const token = authStorage ? JSON.parse(authStorage).state?.token : '';
@@ -125,6 +126,8 @@ export default function CouponsContent() {
   };
 
   const handleToggleStatus = async (coupon) => {
+    toast.error('Restricted by author');
+    return;
     try {
       const authStorage = localStorage.getItem('auth-storage');
       const token = authStorage ? JSON.parse(authStorage).state?.token : '';

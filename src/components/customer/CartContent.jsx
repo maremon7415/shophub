@@ -90,7 +90,7 @@ export default function CartContent() {
                 <div key={`${item._id}-${item.size}-${item.color}`} className="p-6 flex gap-6">
                   <Link href={`/product/${item.slug}`}>
                     <img
-                      src={item.image}
+                      src={item.image || (item.images && item.images[0]) || '/placeholder-product.jpg'}
                       alt={item.name}
                       className="w-24 h-24 object-cover rounded-lg"
                     />
@@ -134,10 +134,10 @@ export default function CartContent() {
                         </button>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold dark:text-white">${((parseFloat(item.price) || 0) * (parseInt(item.quantity) || 0)).toFixed(2)}</p>
+                        <p className="font-semibold dark:text-white">${((parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 1)).toFixed(2)}</p>
                         {item.comparePrice && (
                           <p className="text-sm text-gray-500 dark:text-gray-400 line-through">
-                            ${((parseFloat(item.comparePrice) || 0) * (parseInt(item.quantity) || 0)).toFixed(2)}
+                            ${((parseFloat(item.comparePrice) || 0) * (parseInt(item.quantity, 10) || 1)).toFixed(2)}
                           </p>
                         )}
                       </div>

@@ -42,7 +42,7 @@ export default function AccountLayout({ children }) {
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
       <Navbar />
       <div className="container py-6 md:py-10 pt-24 lg:pt-8">
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6 mt-0 lg:mt-[100px]">
           <div className="w-full lg:w-72 flex-shrink-0">
             <div className="lg:hidden mb-4">
               <button

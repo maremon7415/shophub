@@ -38,6 +38,8 @@ export default function CategoriesContent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    toast.error('Restricted by author');
+    return;
     
     try {
       const authStorage = localStorage.getItem('auth-storage');
@@ -71,7 +73,8 @@ export default function CategoriesContent() {
   };
 
   const handleDelete = async (categoryId) => {
-    if (!confirm('Are you sure you want to delete this category?')) return;
+    toast.error('Restricted by author');
+    return;
     
     try {
       const authStorage = localStorage.getItem('auth-storage');
@@ -95,6 +98,8 @@ export default function CategoriesContent() {
   };
 
   const handleToggleStatus = async (category) => {
+    toast.error('Restricted by author');
+    return;
     try {
       const authStorage = localStorage.getItem('auth-storage');
       const token = authStorage ? JSON.parse(authStorage).state?.token : '';

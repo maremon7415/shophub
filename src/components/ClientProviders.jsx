@@ -55,7 +55,7 @@ export default function ClientProviders({ children }) {
           },
         }}
       />
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false}>
         {children}
       </ThemeProvider>
     </>

@@ -549,7 +549,7 @@ export default function CheckoutPage() {
                         className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl"
                       >
                         <img
-                          src={item.image}
+                          src={item.image || (item.images && item.images[0]) || '/placeholder-product.jpg'}
                           alt={item.name}
                           className="w-16 h-16 object-cover rounded"
                         />
@@ -572,7 +572,7 @@ export default function CheckoutPage() {
                           )}
                         </div>
                         <p className="font-semibold dark:text-white">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          ${((parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 1)).toFixed(2)}
                         </p>
                       </div>
                     ))}
@@ -620,7 +620,7 @@ export default function CheckoutPage() {
                 {items.map((item, index) => (
                   <div key={index} className="flex items-center gap-3">
                     <img
-                      src={item.image}
+                      src={item.image || (item.images && item.images[0]) || '/placeholder-product.jpg'}
                       alt={item.name}
                       className="w-14 h-14 object-cover rounded-lg"
                     />
@@ -633,7 +633,7 @@ export default function CheckoutPage() {
                       </p>
                     </div>
                     <p className="font-medium text-sm dark:text-gray-200">
-                      ${((parseFloat(item.price) || 0) * (parseInt(item.quantity) || 0)).toFixed(2)}
+                      ${((parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 1)).toFixed(2)}
                     </p>
                   </div>
                 ))}

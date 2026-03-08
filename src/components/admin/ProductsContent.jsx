@@ -72,6 +72,8 @@ export default function ProductsContent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    toast.error('Restricted by author');
+    return;
     
     try {
       const authStorage = localStorage.getItem('auth-storage');
@@ -114,7 +116,8 @@ export default function ProductsContent() {
   };
 
   const handleDelete = async (productId) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+    toast.error('Restricted by author');
+    return;
     
     try {
       const authStorage = localStorage.getItem('auth-storage');
@@ -137,6 +140,8 @@ export default function ProductsContent() {
   };
 
   const handleToggleStatus = async (product) => {
+    toast.error('Restricted by author');
+    return;
     try {
       const authStorage = localStorage.getItem('auth-storage');
       const token = authStorage ? JSON.parse(authStorage).state?.token : '';

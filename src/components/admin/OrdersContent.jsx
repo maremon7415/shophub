@@ -121,6 +121,8 @@ export default function OrdersContent() {
   };
 
   const updateOrderStatus = async (orderId, status) => {
+    toast.error('Restricted by author');
+    return;
     try {
       const authStorage = localStorage.getItem('auth-storage');
       const token = authStorage ? JSON.parse(authStorage).state?.token : '';
@@ -148,6 +150,8 @@ export default function OrdersContent() {
   };
 
   const updateOrderWithTracking = async (orderId, status, trackingNumber, carrier) => {
+    toast.error('Restricted by author');
+    return;
     try {
       const authStorage = localStorage.getItem('auth-storage');
       const token = authStorage ? JSON.parse(authStorage).state?.token : '';

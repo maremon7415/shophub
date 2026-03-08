@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FiUsers, FiPackage, FiShoppingCart, FiDollarSign, FiTrendingUp, FiTrendingDown, FiAlertCircle, FiArrowUpRight, FiArrowRight, FiActivity } from 'react-icons/fi';
 import { useAuthStore } from '@/store';
-import { useTheme } from 'next-themes';
 
 const StatCard = ({ label, value, icon: Icon, color, change, trend }) => (
   <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-md transition-all">
@@ -28,8 +27,7 @@ const StatCard = ({ label, value, icon: Icon, color, change, trend }) => (
 
 const RevenueChart = ({ data }) => {
   const maxValue = Math.max(...(data || []).map(d => d.revenue), 1);
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const isDark = true;
   
   return (
     <div className="h-64 flex items-end justify-between gap-2 px-4">

@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FiHome, FiPackage, FiGrid, FiUsers, FiShoppingCart, FiPercent, FiImage, FiSettings, FiLogOut, FiMenu, FiX, FiSun, FiMoon } from 'react-icons/fi';
+import { FiHome, FiPackage, FiGrid, FiUsers, FiShoppingCart, FiPercent, FiImage, FiSettings, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
 import { useAuthStore } from '@/store';
-import { useTheme } from 'next-themes';
 
 const menuItems = [
   { icon: FiHome, label: 'Dashboard', href: '/admin/dashboard' },
@@ -23,7 +22,6 @@ export default function AdminLayout({ children }) {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
-  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
@@ -43,9 +41,7 @@ export default function AdminLayout({ children }) {
     window.location.href = '/login';
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
+
 
   if (!mounted) {
     return (
@@ -58,10 +54,9 @@ export default function AdminLayout({ children }) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-primary dark:bg-slate-900 text-white dark:text-gray-200 transform transition-transform duration-300 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-gray-200 transform transition-transform duration-300 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`}
-        style={theme === 'dark' ? { backgroundColor: '#0f172a' } : {}}
       >
         <div className="p-6">
           <Link href="/admin/dashboard" className="flex items-center">
@@ -115,13 +110,7 @@ export default function AdminLayout({ children }) {
             </button>
 
             <div className="flex items-center gap-4 ml-auto">
-              <button
-                onClick={toggleTheme}
-                className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                aria-label="Toggle theme"
-              >
-                {theme === 'dark' ? <FiSun size={20} /> : <FiMoon size={20} />}
-              </button>
+
               <span className="text-sm text-gray-600 dark:text-gray-300">
                 Welcome, <span className="font-medium">{user?.name || 'Admin'}</span>
               </span>

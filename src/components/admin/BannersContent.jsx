@@ -51,7 +51,8 @@ export default function BannersContent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    toast.error('Restricted by author');
+    return;
     try {
       const authStorage = localStorage.getItem('auth-storage');
       const token = authStorage ? JSON.parse(authStorage).state?.token : '';
@@ -92,8 +93,8 @@ export default function BannersContent() {
   };
 
   const handleDelete = async (bannerId) => {
-    if (!confirm('Are you sure you want to delete this banner?')) return;
-    
+    toast.error('Restricted by author');
+    return;
     try {
       const authStorage = localStorage.getItem('auth-storage');
       const token = authStorage ? JSON.parse(authStorage).state?.token : '';
@@ -115,6 +116,8 @@ export default function BannersContent() {
   };
 
   const handleToggleStatus = async (banner) => {
+    toast.error('Restricted by author');
+    return;
     try {
       const authStorage = localStorage.getItem('auth-storage');
       const token = authStorage ? JSON.parse(authStorage).state?.token : '';

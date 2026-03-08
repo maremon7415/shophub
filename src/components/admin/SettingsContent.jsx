@@ -31,6 +31,8 @@ export default function SettingsContent() {
   ];
 
   const handleSave = async () => {
+    toast.error('Restricted by author');
+    return;
     setLoading(true);
     try {
       const authStorage = localStorage.getItem('auth-storage');
