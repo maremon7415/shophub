@@ -125,13 +125,13 @@ export default function UsersContent() {
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-card p-6 mb-6">
         <div className="flex flex-col sm:flex-row justify-between gap-4">
           <div className="relative flex-1 max-w-md">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Search users..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="input pl-10"
+              className="input pl-12"
             />
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400">

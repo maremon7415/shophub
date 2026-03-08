@@ -205,13 +205,13 @@ export default function OrdersContent() {
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-card p-6 mb-6">
         <div className="flex flex-col sm:flex-row justify-between gap-4">
           <div className="relative flex-1 max-w-md">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Search orders..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="input pl-10"
+              className="input pl-12"
             />
           </div>
           <select
@@ -318,7 +318,7 @@ export default function OrdersContent() {
                         <img src={item.image} alt={item.name} className="w-12 h-12 object-cover rounded" />
                         <div className="flex-1">
                           <p className="text-sm font-medium text-gray-800 dark:text-white">{item.name}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Qty: {item.quantity} × ${(parseFloat(item.price) || 0).toFixed(2)}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Qty: {parseInt(item.quantity, 10) || 1} × ${(parseFloat(item.price) || 0).toFixed(2)}</p>
                         </div>
                       </div>
                     ))}

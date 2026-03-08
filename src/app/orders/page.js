@@ -95,7 +95,7 @@ export default function OrdersPage() {
                       <div className="flex-1">
                         <Link href={`/product/${item.slug || ''}`} className="font-semibold text-gray-800 dark:text-white hover:text-accent line-clamp-1">{item.name}</Link>
                         <p className="text-sm text-gray-500 mt-1">
-                          Qty: {item.quantity} 
+                          Qty: {parseInt(item.quantity, 10) || 1}
                           {item.size && <span className="ml-2">Size: {item.size}</span>}
                           {item.color && <span className="ml-2">Color: {item.color}</span>}
                         </p>

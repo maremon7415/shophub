@@ -5,6 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FiShoppingCart, FiHeart, FiEye, FiStar, FiTruck, FiRotateCcw, FiShield, FiChevronLeft, FiChevronRight, FiMinus, FiPlus } from 'react-icons/fi';
 import { useCartStore, useWishlistStore } from '@/store';
+import Navbar from '@/components/customer/Navbar';
+import Footer from '@/components/customer/Footer';
+import MobileBottomNav from '@/components/customer/MobileBottomNav';
 import toast from 'react-hot-toast';
 
 export default function ProductDetailPage() {
@@ -83,38 +86,52 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="skeleton h-96 rounded-2xl" />
-            <div className="space-y-4">
-              <div className="skeleton h-8 w-3/4" />
-              <div className="skeleton h-6 w-1/4" />
-              <div className="skeleton h-20 w-full" />
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+        <Navbar />
+        <div className="py-8 pt-24 lg:pt-8">
+          <div className="container">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="skeleton h-96 rounded-2xl" />
+              <div className="space-y-4">
+                <div className="skeleton h-8 w-3/4" />
+                <div className="skeleton h-6 w-1/4" />
+                <div className="skeleton h-20 w-full" />
+              </div>
             </div>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-500 mb-4">Product not found</p>
-          <Link href="/collections" className="btn btn-primary">Back to Collections</Link>
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+        <Navbar />
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <p className="text-gray-500 mb-4 dark:text-gray-400">Product not found</p>
+            <Link href="/collections" className="btn btn-primary">Back to Collections</Link>
+          </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
-  const images = product.images?.length > 0 ? product.images : [product.image];
+  const images = product.images?.length > 0 
+    ? product.images 
+    : product.image 
+      ? [product.image] 
+      : ['data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"%3E%3Crect fill="%23e5e7eb" width="400" height="400"/%3E%3Ctext fill="%239ca3af" font-family="sans-serif" font-size="20" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E'];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8 transition-colors">
-      <div className="container">
-        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <Navbar />
+      <div className="py-8 pt-20 lg:pt-8 transition-colors">
+        <div className="container">
+          <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
           <Link href="/" className="hover:text-accent">Home</Link>
           <span>/</span>
           <Link href="/collections" className="hover:text-accent">Collections</Link>
@@ -402,7 +419,10 @@ export default function ProductDetailPage() {
             </div>
           )}
         </div>
+        </div>
       </div>
+      <Footer />
+      <MobileBottomNav />
     </div>
   );
 }

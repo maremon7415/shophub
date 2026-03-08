@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 export async function GET(request, { params }) {
   try {
     await connectDB();
-    const { id } = params;
+    const { id } = await params;
 
     let product;
     if (mongoose.Types.ObjectId.isValid(id)) {
@@ -53,7 +53,7 @@ export async function PUT(request, { params }) {
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     const data = await request.json();
 
     const product = await Product.findByIdAndUpdate(
@@ -96,7 +96,7 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     const product = await Product.findByIdAndDelete(id);
 

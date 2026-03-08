@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store';
+import Navbar from '@/components/customer/Navbar';
+import Footer from '@/components/customer/Footer';
 import MobileBottomNav from '@/components/customer/MobileBottomNav';
 import { FiUser, FiPackage, FiHeart, FiSettings, FiLogOut, FiMenu, FiX, FiChevronRight } from 'react-icons/fi';
 
@@ -38,7 +40,8 @@ export default function AccountLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-      <div className="container py-6 md:py-10">
+      <Navbar />
+      <div className="container py-6 md:py-10 pt-24 lg:pt-8">
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="w-full lg:w-72 flex-shrink-0">
             <div className="lg:hidden mb-4">
@@ -102,6 +105,7 @@ export default function AccountLayout({ children }) {
           </div>
         </div>
       </div>
+      <Footer />
       <MobileBottomNav />
     </div>
   );

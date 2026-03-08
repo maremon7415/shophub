@@ -119,15 +119,15 @@ export default function CartContent() {
                     <div className="flex items-center justify-between mt-4">
                       <div className="flex items-center border dark:border-slate-700 rounded-lg">
                         <button
-                          onClick={() => updateQuantity(item._id, item.quantity - 1, item.size, item.color)}
-                          disabled={item.quantity <= 1}
+                          onClick={() => updateQuantity(item._id, (parseInt(item.quantity, 10) || 1) - 1, item.size, item.color)}
+                          disabled={(parseInt(item.quantity, 10) || 1) <= 1}
                           className="p-2 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 dark:text-white"
                         >
                           <FiMinus size={16} />
                         </button>
-                        <span className="px-4 font-medium dark:text-white">{item.quantity}</span>
+                        <span className="px-4 font-medium dark:text-white">{parseInt(item.quantity, 10) || 1}</span>
                         <button
-                          onClick={() => updateQuantity(item._id, item.quantity + 1, item.size, item.color)}
+                          onClick={() => updateQuantity(item._id, (parseInt(item.quantity, 10) || 1) + 1, item.size, item.color)}
                           className="p-2 hover:bg-gray-50 dark:hover:bg-slate-700 dark:text-white"
                         >
                           <FiPlus size={16} />

@@ -13,6 +13,8 @@ import {
   FiMapPin,
 } from "react-icons/fi";
 import { useCartStore, useAuthStore } from "@/store";
+import Navbar from "@/components/customer/Navbar";
+import Footer from "@/components/customer/Footer";
 import MobileBottomNav from "@/components/customer/MobileBottomNav";
 import toast from "react-hot-toast";
 
@@ -159,8 +161,10 @@ export default function CheckoutPage() {
 
   if (orderPlaced) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center py-12 px-4">
-        <div className="max-w-md w-full text-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+        <Navbar />
+        <div className="flex items-center justify-center py-12 px-4">
+          <div className="max-w-md w-full text-center">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <FiCheckCircle className="text-green-500 text-4xl" />
           </div>
@@ -187,14 +191,18 @@ export default function CheckoutPage() {
               Continue Shopping
             </Link>
           </div>
+          </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8 pt-20 lg:pt-8 transition-colors">
-      <div className="container">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <Navbar />
+      <div className="py-8 pt-20 lg:pt-8 transition-colors">
+        <div className="container">
         <div className="flex items-center mb-8">
           <Link
             href="/cart"
@@ -699,7 +707,9 @@ export default function CheckoutPage() {
             </div>
           </div>
         </div>
+        </div>
       </div>
+      <Footer />
       <MobileBottomNav />
     </div>
   );

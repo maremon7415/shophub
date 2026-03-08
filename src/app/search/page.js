@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { FiSearch, FiX, FiShoppingCart, FiHeart, FiStar, FiFilter } from 'react-icons/fi';
 import { useCartStore, useWishlistStore } from '@/store';
+import Navbar from '@/components/customer/Navbar';
+import Footer from '@/components/customer/Footer';
 import MobileBottomNav from '@/components/customer/MobileBottomNav';
 import toast from 'react-hot-toast';
 
@@ -97,15 +99,17 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8 pt-20 lg:pt-8 transition-colors">
-      <div className="container">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold mb-6 dark:text-white">Search Products</h1>
-          
-          <div className="relative mb-6">
-            <div className="flex gap-4">
-              <div className="relative flex-1">
-                <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <Navbar />
+      <div className="py-8 pt-20 lg:pt-8 transition-colors">
+        <div className="container">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-2xl font-bold mb-6 dark:text-white">Search Products</h1>
+            
+            <div className="relative mb-6">
+              <div className="flex gap-4">
+                <div className="relative flex-1">
+                  <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
                 <input
                   type="text"
                   value={query}
@@ -290,6 +294,8 @@ export default function SearchPage() {
           )}
         </div>
       </div>
+      </div>
+      <Footer />
       <MobileBottomNav />
     </div>
   );

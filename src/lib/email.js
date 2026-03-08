@@ -4,7 +4,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendOrderConfirmation(email, order) {
   const itemsList = order.items
-    .map(item => `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`)
+    .map(item => `${item.name} x${parseInt(item.quantity, 10) || 1} - $${((parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 1)).toFixed(2)}`)
     .join('\n');
 
   const textContent = `
@@ -89,7 +89,7 @@ ShopHub Team
         ${order.items.map(item => `
           <div class="item">
             <div class="item-name">${item.name}</div>
-            <div class="item-details">Qty: ${item.quantity} × $${item.price?.toFixed(2)} = <strong>$${(item.price * item.quantity).toFixed(2)}</strong></div>
+            <div class="item-details">Qty: ${parseInt(item.quantity, 10) || 1} × $${(parseFloat(item.price) || 0).toFixed(2)} = <strong>$${((parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 1)).toFixed(2)}</strong></div>
           </div>
         `).join('')}
       </div>

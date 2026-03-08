@@ -320,7 +320,7 @@ export default function OrderTrackingPage() {
                   <div className="flex-1">
                     <p className="font-medium text-gray-800 dark:text-white">{item.name}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Qty: {item.quantity} × ${(parseFloat(item.price) || 0).toFixed(2)}
+                      Qty: {parseInt(item.quantity, 10) || 1} × ${(parseFloat(item.price) || 0).toFixed(2)}
                     </p>
                     {item.size && (
                       <p className="text-sm text-gray-500 dark:text-gray-400">Size: {item.size}</p>

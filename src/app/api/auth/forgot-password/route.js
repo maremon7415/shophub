@@ -35,7 +35,15 @@ export async function POST(request) {
     user.resetTokenExpiry = Date.now() + 3600000;
     await user.save();
 
-    await sendPasswordResetEmail(email, resetToken);
+    const emailResult = await sendPasswordResetEmail(email, resetToken);
+
+    if (!emailResult.success) {
+      console.error('Email sending failed in route:', emailResult.error);
+      return NextResponse.json(
+        { message: `Email failed to send: ${emailResult.error}` },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(
       { message: 'Password reset link sent to your email' },
