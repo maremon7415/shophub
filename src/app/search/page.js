@@ -97,10 +97,10 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8 pt-20 lg:pt-8 transition-colors">
       <div className="container">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold mb-6">Search Products</h1>
+          <h1 className="text-2xl font-bold mb-6 dark:text-white">Search Products</h1>
           
           <div className="relative mb-6">
             <div className="flex gap-4">
@@ -131,10 +131,10 @@ export default function SearchPage() {
             </div>
 
             {showFilters && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg p-4 z-10">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-lg p-4 z-10">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                     <select
                       value={filters.category}
                       onChange={(e) => setFilters({ ...filters, category: e.target.value })}
@@ -148,7 +148,7 @@ export default function SearchPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Min Price</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Min Price</label>
                     <input
                       type="number"
                       value={filters.minPrice}
@@ -158,7 +158,7 @@ export default function SearchPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Max Price</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Price</label>
                     <input
                       type="number"
                       value={filters.maxPrice}
@@ -168,7 +168,7 @@ export default function SearchPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sort By</label>
                     <select
                       value={filters.sort}
                       onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
@@ -199,21 +199,21 @@ export default function SearchPage() {
           ) : query.length < 2 ? (
             <div className="text-center py-12">
               <FiSearch className="text-6xl text-gray-300 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Start searching</h2>
-              <p className="text-gray-500">Enter at least 2 characters to search</p>
+              <h2 className="text-xl font-semibold mb-2 dark:text-white">Start searching</h2>
+              <p className="text-gray-500 dark:text-gray-400">Enter at least 2 characters to search</p>
             </div>
           ) : results.length === 0 ? (
             <div className="text-center py-12">
               <FiSearch className="text-6xl text-gray-300 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">No results found</h2>
-              <p className="text-gray-500">Try different keywords or adjust filters</p>
+              <h2 className="text-xl font-semibold mb-2 dark:text-white">No results found</h2>
+              <p className="text-gray-500 dark:text-gray-400">Try different keywords or adjust filters</p>
             </div>
           ) : (
             <>
-              <p className="text-gray-500 mb-4">{results.length} results for "{query}"</p>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">{results.length} results for "{query}"</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {results.map((product) => (
-                  <div key={product._id} className="bg-white rounded-xl shadow-card overflow-hidden group">
+                  <div key={product._id} className="bg-white dark:bg-slate-800 rounded-xl shadow-card overflow-hidden group">
                     <div className="relative aspect-[4/3]">
                       <Link href={`/product/${product.slug}`}>
                         <img
@@ -248,14 +248,14 @@ export default function SearchPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="p-4">
+                      <div className="p-4">
                       <Link href={`/collections?category=${product.category?.slug}`}>
                         <span className="text-xs text-accent uppercase">
                           {product.category?.name || 'General'}
                         </span>
                       </Link>
                       <Link href={`/product/${product.slug}`}>
-                        <h3 className="font-semibold mt-1 line-clamp-2 hover:text-accent">
+                        <h3 className="font-semibold mt-1 line-clamp-2 hover:text-accent dark:text-white">
                           {product.name}
                         </h3>
                       </Link>
@@ -268,16 +268,16 @@ export default function SearchPage() {
                             />
                           ))}
                         </div>
-                        <span className="text-xs text-gray-500 ml-1">
+                        <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
                           ({product.reviewCount || 0})
                         </span>
                       </div>
                       <div className="flex items-center justify-between mt-2">
                         <div>
-                          <span className="text-lg font-bold">${product.price?.toFixed(2)}</span>
-                          {product.comparePrice > product.price && (
+                          <span className="text-lg font-bold text-gray-800 dark:text-white">${(parseFloat(product.price) || 0).toFixed(2)}</span>
+                          {parseFloat(product.comparePrice) > parseFloat(product.price) && (
                             <span className="ml-2 text-sm text-gray-400 line-through">
-                              ${product.comparePrice?.toFixed(2)}
+                              ${(parseFloat(product.comparePrice) || 0).toFixed(2)}
                             </span>
                           )}
                         </div>

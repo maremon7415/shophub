@@ -204,7 +204,7 @@ export default function ProductsContent() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Products</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Products</h1>
         <button
           onClick={() => {
             resetForm();
@@ -277,10 +277,10 @@ export default function ProductsContent() {
                       <span className="text-sm">{product.category?.name || '-'}</span>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="font-medium">${product.price?.toFixed(2)}</span>
-                      {product.comparePrice > product.price && (
-                        <span className="text-sm text-gray-500 ml-2 line-through">
-                          ${product.comparePrice?.toFixed(2)}
+                      <span className="font-medium">${(parseFloat(product.price) || 0).toFixed(2)}</span>
+                      {parseFloat(product.comparePrice) > parseFloat(product.price) && (
+                        <span className="text-sm text-gray-500 dark:text-gray-400 ml-2 line-through">
+                          ${(parseFloat(product.comparePrice) || 0).toFixed(2)}
                         </span>
                       )}
                     </td>

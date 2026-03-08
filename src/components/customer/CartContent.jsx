@@ -16,9 +16,9 @@ export default function CartContent() {
   const { items, updateQuantity, removeItem, getTotal } = useCartStore();
   const { user } = useAuthStore();
 
-  const subtotal = getTotal();
+  const subtotal = getTotal() || 0;
   const shipping = subtotal > 50 ? 0 : 9.99;
-  const tax = subtotal * 0.08;
+  const tax = subtotal * 0.08 || 0;
   const discount = coupon ? (coupon.discountType === 'percentage'
     ? subtotal * (coupon.discountValue / 100)
     : coupon.discountValue) : 0;
@@ -80,7 +80,7 @@ export default function CartContent() {
 
   return (
     <div className="container">
-      <h1 className="text-2xl font-bold mb-8 dark:text-white">Shopping Cart ({items.length} items)</h1>
+      <h1 className="text-2xl font-bold mb-8 dark:text-white pt-20 lg:pt-0">Shopping Cart ({items.length} items)</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
@@ -134,10 +134,10 @@ export default function CartContent() {
                         </button>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold dark:text-white">${(item.price * item.quantity).toFixed(2)}</p>
+                        <p className="font-semibold dark:text-white">${((parseFloat(item.price) || 0) * (parseInt(item.quantity) || 0)).toFixed(2)}</p>
                         {item.comparePrice && (
                           <p className="text-sm text-gray-500 dark:text-gray-400 line-through">
-                            ${(item.comparePrice * item.quantity).toFixed(2)}
+                            ${((parseFloat(item.comparePrice) || 0) * (parseInt(item.quantity) || 0)).toFixed(2)}
                           </p>
                         )}
                       </div>
@@ -191,7 +191,7 @@ export default function CartContent() {
             <div className="space-y-3 mb-6">
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-300">Subtotal</span>
-                <span className="font-medium dark:text-white">${subtotal.toFixed(2)}</span>
+                <span className="font-medium dark:text-white">${(parseFloat(subtotal) || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-300">Shipping</span>
@@ -204,17 +204,17 @@ export default function CartContent() {
               )}
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-300">Tax (8%)</span>
-                <span className="font-medium dark:text-white">${tax.toFixed(2)}</span>
+                <span className="font-medium dark:text-white">${(parseFloat(tax) || 0).toFixed(2)}</span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-green-500 dark:text-green-400">
                   <span>Discount</span>
-                  <span>-${discount.toFixed(2)}</span>
+                  <span>-${(parseFloat(discount) || 0).toFixed(2)}</span>
                 </div>
               )}
               <div className="border-t dark:border-slate-700 pt-3 flex justify-between text-lg font-bold dark:text-white">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>${(parseFloat(total) || 0).toFixed(2)}</span>
               </div>
             </div>
 

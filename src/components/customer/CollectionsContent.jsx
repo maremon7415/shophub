@@ -417,11 +417,11 @@ export default function CollectionsContent() {
                       <div className="flex items-center justify-between mt-3">
                         <div>
                           <span className="text-lg font-bold text-primary dark:text-white">
-                            ${product.price?.toFixed(2)}
+                            ${(parseFloat(product.price) || 0).toFixed(2)}
                           </span>
-                          {product.comparePrice > product.price && (
+                          {parseFloat(product.comparePrice) > parseFloat(product.price) && (
                             <span className="ml-2 text-sm text-gray-500 dark:text-gray-400 line-through">
-                              ${product.comparePrice?.toFixed(2)}
+                              ${(parseFloat(product.comparePrice) || 0).toFixed(2)}
                             </span>
                           )}
                         </div>

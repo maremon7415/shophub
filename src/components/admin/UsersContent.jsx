@@ -117,12 +117,12 @@ export default function UsersContent() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Users</h1>
-          <p className="text-gray-500 mt-1">Manage registered users</p>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Users</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage registered users</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-card p-6 mb-6">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-card p-6 mb-6">
         <div className="flex flex-col sm:flex-row justify-between gap-4">
           <div className="relative flex-1 max-w-md">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -134,7 +134,7 @@ export default function UsersContent() {
               className="input pl-10"
             />
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 dark:text-gray-400">
             Showing {users.length} of {pagination.total} users
           </div>
         </div>
@@ -142,7 +142,7 @@ export default function UsersContent() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl shadow-card">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-card">
             {loading ? (
               <div className="p-6 space-y-4">
                 {[...Array(5)].map((_, i) => (
@@ -152,26 +152,26 @@ export default function UsersContent() {
             ) : users.length === 0 ? (
               <div className="text-center py-12">
                 <FiUser className="mx-auto text-4xl text-gray-300 mb-2" />
-                <p className="text-gray-500">No users found</p>
+                <p className="text-gray-500 dark:text-gray-400">No users found</p>
               </div>
             ) : (
-              <div className="divide-y">
+              <div className="divide-y divide-gray-100 dark:divide-slate-700">
                 {users.map((user) => (
                   <div
                     key={user._id}
                     onClick={() => setSelectedUser(user)}
-                    className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${selectedUser?._id === user._id ? 'bg-blue-50' : ''}`}
+                    className={`p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors ${selectedUser?._id === user._id ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                          <span className="text-primary font-semibold text-lg">
+                        <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center">
+                          <span className="text-accent font-semibold text-lg">
                             {user.name?.charAt(0).toUpperCase() || 'U'}
                           </span>
                         </div>
                         <div>
-                          <p className="font-semibold">{user.name}</p>
-                          <p className="text-sm text-gray-500">{user.email}</p>
+                          <p className="font-semibold text-gray-800 dark:text-white">{user.name}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">

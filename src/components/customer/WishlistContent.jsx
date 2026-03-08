@@ -54,7 +54,7 @@ export default function WishlistContent() {
   }
 
   return (
-    <div className="container py-8">
+    <div className="container py-8 pt-20 lg:pt-8">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="section-heading">My Wishlist</h1>
@@ -120,11 +120,11 @@ export default function WishlistContent() {
               <div className="flex items-center justify-between mt-3">
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-bold text-amber-600 dark:text-amber-400">
-                    ${product.price?.toFixed(2)}
+                    ${(parseFloat(product.price) || 0).toFixed(2)}
                   </span>
-                  {product.comparePrice > product.price && (
+                  {parseFloat(product.comparePrice) > parseFloat(product.price) && (
                     <span className="text-sm text-gray-400 dark:text-gray-500 line-through">
-                      ${product.comparePrice?.toFixed(2)}
+                      ${(parseFloat(product.comparePrice) || 0).toFixed(2)}
                     </span>
                   )}
                 </div>

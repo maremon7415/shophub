@@ -36,6 +36,9 @@ export async function PUT(request, { params }) {
       updateData.paymentStatus = data.paymentStatus;
     }
 
+    const previousOrder = await Order.findById(id);
+    const previousStatus = previousOrder?.status;
+
     const order = await Order.findByIdAndUpdate(
       id,
       updateData,
@@ -45,9 +48,6 @@ export async function PUT(request, { params }) {
     if (!order) {
       return NextResponse.json({ message: "Order not found" }, { status: 404 });
     }
-
-    const previousOrder = await Order.findById(id);
-    const previousStatus = previousOrder?.status;
 
     if (data.status && data.status !== previousStatus) {
       const userEmail = order.userId?.email || order.guestEmail;

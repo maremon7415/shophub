@@ -169,8 +169,8 @@ export default function BannersContent() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Banners</h1>
-          <p className="text-gray-500 mt-1">Manage promotional banners</p>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Banners</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage promotional banners</p>
         </div>
         <button
           onClick={() => {
@@ -184,7 +184,7 @@ export default function BannersContent() {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-card">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-card">
         {loading ? (
           <div className="p-6 space-y-4">
             {[...Array(5)].map((_, i) => (
@@ -194,13 +194,13 @@ export default function BannersContent() {
         ) : banners.length === 0 ? (
           <div className="text-center py-12">
             <FiImage className="mx-auto text-4xl text-gray-300 mb-2" />
-            <p className="text-gray-500">No banners found</p>
+            <p className="text-gray-500 dark:text-gray-400">No banners found</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
             {banners.map((banner) => (
-              <div key={banner._id} className="bg-white border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <div className="relative h-40 bg-gray-100">
+              <div key={banner._id} className="bg-white dark:bg-slate-700 border dark:border-slate-600 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <div className="relative h-40 bg-gray-100 dark:bg-slate-800">
                   {banner.image ? (
                     <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
                   ) : (
@@ -210,35 +210,35 @@ export default function BannersContent() {
                   )}
                   <div className="absolute top-2 right-2">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      banner.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                      banner.isActive ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300' : 'bg-gray-100 dark:bg-slate-600 text-gray-500 dark:text-gray-400'
                     }`}>
                       {banner.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold text-lg">{banner.title}</h3>
+                  <h3 className="font-semibold text-lg dark:text-white">{banner.title}</h3>
                   {banner.subtitle && (
-                    <p className="text-sm text-gray-500 mt-1">{banner.subtitle}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{banner.subtitle}</p>
                   )}
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t">
-                    <span className="text-xs text-gray-500 capitalize">{banner.position}</span>
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t dark:border-slate-600">
+                    <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">{banner.position}</span>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => openEditModal(banner)}
-                        className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg"
+                        className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg"
                       >
                         <FiEdit size={16} />
                       </button>
                       <button
                         onClick={() => handleToggleStatus(banner)}
-                        className={`p-2 rounded-lg ${banner.isActive ? 'text-gray-500 hover:bg-gray-100' : 'text-green-500 hover:bg-green-50'}`}
+                        className={`p-2 rounded-lg ${banner.isActive ? 'text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-600' : 'text-green-500 hover:bg-green-50 dark:hover:bg-green-900/30'}`}
                       >
                         {banner.isActive ? <FiToggleRight size={16} /> : <FiToggleLeft size={16} />}
                       </button>
                       <button
                         onClick={() => handleDelete(banner._id)}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg"
                       >
                         <FiTrash2 size={16} />
                       </button>
@@ -253,9 +253,9 @@ export default function BannersContent() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b">
-              <h2 className="text-xl font-bold">
+          <div className="bg-white dark:bg-slate-800 rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b dark:border-slate-700">
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white">
                 {editingBanner ? 'Edit Banner' : 'Add New Banner'}
               </h2>
             </div>
@@ -294,7 +294,7 @@ export default function BannersContent() {
                   required
                 />
                 {formData.image && (
-                  <div className="mt-2 h-32 rounded-lg overflow-hidden bg-gray-100">
+                  <div className="mt-2 h-32 rounded-lg overflow-hidden bg-gray-100 dark:bg-slate-700">
                     <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
                   </div>
                 )}

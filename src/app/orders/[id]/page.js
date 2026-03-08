@@ -68,7 +68,7 @@ export default function OrderTrackingPage() {
 
   if (!params.id) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-12 px-4 transition-colors">
         <div className="container">
           <div className="max-w-md mx-auto">
             <Link
@@ -102,7 +102,7 @@ export default function OrderTrackingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-12 px-4 transition-colors">
         <div className="container">
           <div className="max-w-3xl mx-auto">
             <div className="skeleton h-8 w-48 mb-8" />
@@ -121,7 +121,7 @@ export default function OrderTrackingPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-12 px-4 transition-colors">
         <div className="container">
           <div className="max-w-md mx-auto text-center">
             <Link
@@ -156,23 +156,23 @@ export default function OrderTrackingPage() {
   const currentStep = getCurrentStep();
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-12 px-4 transition-colors">
       <div className="container">
         <Link
           href="/"
-          className="flex items-center text-gray-600 hover:text-accent mb-6"
+          className="flex items-center text-gray-600 dark:text-gray-300 hover:text-accent mb-6"
         >
           <FiArrowLeft className="mr-2" /> Back to Home
         </Link>
 
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-card p-6 mb-6">
+          <div className="max-w-3xl mx-auto">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-card p-6 mb-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="text-2xl font-bold">
+                <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
                   Order {order.orderNumber}
                 </h1>
-                <p className="text-gray-500">
+                <p className="text-gray-500 dark:text-gray-400">
                   Placed on {new Date(order.createdAt).toLocaleDateString()}
                 </p>
               </div>
@@ -188,7 +188,7 @@ export default function OrderTrackingPage() {
               </span>
             </div>
 
-            <div className="relative">
+              <div className="relative">
               <div className="flex justify-between">
                 {statusSteps.map((step, index) => {
                   const Icon = step.icon;
@@ -204,7 +204,7 @@ export default function OrderTrackingPage() {
                         className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
                           isCompleted ?
                             "bg-accent text-white"
-                          : "bg-gray-200 text-gray-400"
+                          : "bg-gray-200 dark:bg-slate-700 text-gray-400"
                         } ${isCurrent ? "ring-4 ring-accent/30" : ""}`}
                       >
                         <Icon size={20} />
@@ -218,7 +218,7 @@ export default function OrderTrackingPage() {
                   );
                 })}
               </div>
-              <div className="absolute top-6 left-0 right-0 h-1 bg-gray-200 z-0">
+              <div className="absolute top-6 left-0 right-0 h-1 bg-gray-200 dark:bg-slate-700 z-0">
                 <div
                   className="h-full bg-accent transition-all duration-500"
                   style={{
@@ -230,10 +230,10 @@ export default function OrderTrackingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold mb-4">Shipping Address</h2>
-              <div className="space-y-2 text-gray-600">
-                <p className="font-medium text-gray-900">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-card p-6">
+              <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Shipping Address</h2>
+              <div className="space-y-2 text-gray-600 dark:text-gray-300">
+                <p className="font-medium text-gray-900 dark:text-white">
                   {order.shippingAddress.fullName}
                 </p>
                 <p>{order.shippingAddress.street}</p>
@@ -243,56 +243,56 @@ export default function OrderTrackingPage() {
                 </p>
                 <p>{order.shippingAddress.country}</p>
               </div>
-              <div className="mt-4 pt-4 border-t space-y-2">
-                <div className="flex items-center gap-2 text-gray-600">
+              <div className="mt-4 pt-4 border-t dark:border-slate-700 space-y-2">
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                   <FiMail size={16} />
                   <span className="text-sm">{order.shippingAddress.email}</span>
                 </div>
-                <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                   <FiPhone size={16} />
                   <span className="text-sm">{order.shippingAddress.phone}</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-card p-6">
-              <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-card p-6">
+              <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Order Summary</h2>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span>${order.subtotal?.toFixed(2)}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
+                  <span className="text-gray-800 dark:text-white">${(parseFloat(order.subtotal) || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Shipping</span>
-                  <span>
-                    {order.shippingCost === 0 ?
+                  <span className="text-gray-600 dark:text-gray-400">Shipping</span>
+                  <span className="text-gray-800 dark:text-white">
+                    {parseFloat(order.shippingCost) === 0 ?
                       "Free"
-                    : `$${order.shippingCost?.toFixed(2)}`}
+                    : `$${(parseFloat(order.shippingCost) || 0).toFixed(2)}`}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Tax</span>
-                  <span>${order.tax?.toFixed(2)}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Tax</span>
+                  <span className="text-gray-800 dark:text-white">${(parseFloat(order.tax) || 0).toFixed(2)}</span>
                 </div>
-                {order.discount > 0 && (
+                {parseFloat(order.discount) > 0 && (
                   <div className="flex justify-between text-green-500">
                     <span>Discount</span>
-                    <span>-${order.discount?.toFixed(2)}</span>
+                    <span>-${(parseFloat(order.discount) || 0).toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                  <span>Total</span>
+                <div className="flex justify-between font-bold text-lg pt-2 border-t dark:border-slate-700">
+                  <span className="text-gray-800 dark:text-white">Total</span>
                   <span className="text-accent">
-                    ${order.total?.toFixed(2)}
+                    ${(parseFloat(order.total) || 0).toFixed(2)}
                   </span>
                 </div>
               </div>
-              <div className="mt-4 pt-4 border-t">
-                <p className="text-sm text-gray-500">
+              <div className="mt-4 pt-4 border-t dark:border-slate-700">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Payment:{" "}
-                  <span className="capitalize">{order.paymentMethod}</span>
+                  <span className="capitalize text-gray-800 dark:text-white">{order.paymentMethod}</span>
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Payment Status:{" "}
                   <span
                     className={`badge ${order.paymentStatus === "paid" ? "badge-success" : "badge-warning"}`}
@@ -304,13 +304,13 @@ export default function OrderTrackingPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-card p-6 mt-6">
-            <h2 className="text-lg font-semibold mb-4">Order Items</h2>
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-card p-6 mt-6">
+            <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Order Items</h2>
             <div className="space-y-4">
               {order.items?.map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl"
+                  className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-slate-700/50 rounded-xl"
                 >
                   <img
                     src={item.image}
@@ -318,21 +318,21 @@ export default function OrderTrackingPage() {
                     className="w-20 h-20 object-cover rounded-lg"
                   />
                   <div className="flex-1">
-                    <p className="font-medium">{item.name}</p>
-                    <p className="text-sm text-gray-500">
-                      Qty: {item.quantity} × ${item.price?.toFixed(2)}
+                    <p className="font-medium text-gray-800 dark:text-white">{item.name}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Qty: {item.quantity} × ${(parseFloat(item.price) || 0).toFixed(2)}
                     </p>
                     {item.size && (
-                      <p className="text-sm text-gray-500">Size: {item.size}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Size: {item.size}</p>
                     )}
                     {item.color && (
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         Color: {item.color}
                       </p>
                     )}
                   </div>
-                  <p className="font-semibold">
-                    ${(item.price * item.quantity).toFixed(2)}
+                  <p className="font-semibold text-gray-800 dark:text-white">
+                    ${((parseFloat(item.price) || 0) * (parseInt(item.quantity) || 0)).toFixed(2)}
                   </p>
                 </div>
               ))}

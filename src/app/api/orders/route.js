@@ -111,19 +111,35 @@ export async function POST(request) {
 
     const orderNumber = generateOrderNumber();
 
+    // Sanitize and validate items
+    const sanitizedItems = (items || []).map((item, i) => ({
+      productId: item.productId || item._id,
+      name: item.name || 'Product',
+      image: item.image || item.images?.[0] || '',
+      price: parseFloat(item.price) || 0,
+      quantity: parseInt(item.quantity, 10) || 1,
+      size: item.size || undefined,
+      color: item.color || undefined,
+      sku: item.sku || undefined,
+    })).filter(item => item.productId && item.name && item.image);
+
+    if (!sanitizedItems.length) {
+      return NextResponse.json({ message: "No valid items in order" }, { status: 400 });
+    }
+
     const order = await Order.create({
       userId,
       orderNumber,
-      items,
+      items: sanitizedItems,
       shippingAddress,
       paymentMethod,
       paymentStatus: "pending",
-      subtotal,
-      shippingCost,
-      tax,
-      discount,
+      subtotal: parseFloat(subtotal) || 0,
+      shippingCost: parseFloat(shippingCost) || 0,
+      tax: parseFloat(tax) || 0,
+      discount: parseFloat(discount) || 0,
       couponCode,
-      total,
+      total: parseFloat(total) || 0,
       isGuestOrder: isGuestOrder || false,
       guestEmail: guestEmail || (isGuestOrder ? shippingAddress.email : null),
       status: "pending",

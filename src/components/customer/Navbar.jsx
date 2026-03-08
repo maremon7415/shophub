@@ -51,8 +51,24 @@ export default function Navbar() {
     window.location.href = '/';
   };
 
+  const navLinkClass = (path) => {
+    const isActive = path === '/' ? pathname === '/' : pathname?.startsWith(path);
+    if (isActive) return 'text-accent font-medium transition-colors';
+    return `font-medium transition-colors ${
+      isHomePage && !isScrolled
+        ? 'text-white/90 hover:text-white dark:text-white/90 dark:hover:text-white'
+        : 'text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent'
+    }`;
+  };
+
+  const iconClass = `p-2 transition-colors relative ${
+    isHomePage && !isScrolled
+      ? 'text-white/90 hover:text-white dark:text-white/90 dark:hover:text-white'
+      : 'text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent'
+  }`;
+
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 hidden lg:block ${
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       isHomePage 
         ? (isScrolled ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-soft py-3' : 'bg-transparent dark:bg-transparent')
         : 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-soft py-3'
@@ -60,26 +76,24 @@ export default function Navbar() {
       <div className="container">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <span className="text-2xl font-bold font-display text-primary dark:text-white">
+            <span className={`text-2xl font-bold font-display ${isHomePage && !isScrolled ? 'text-white' : 'text-primary dark:text-white'}`}>
               Shop<span className="text-accent">Hub</span>
             </span>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8">
-            <Link
-              href="/"
-              className={`font-medium transition-colors ${pathname === '/' ? 'text-accent' : 'text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent'}`}
-            >
+            <Link href="/" className={navLinkClass('/')}>
               Home
             </Link>
-            <Link
-              href="/collections"
-              className={`font-medium transition-colors ${pathname?.startsWith('/collections') ? 'text-accent' : 'text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent'}`}
-            >
+            <Link href="/collections" className={navLinkClass('/collections')}>
               Collections
             </Link>
             <div className="relative group">
-              <button className="flex items-center font-medium text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-amber-400 transition-colors py-2">
+              <button className={`flex items-center font-medium transition-colors py-2 ${
+                isHomePage && !isScrolled
+                  ? 'text-white/90 hover:text-white dark:text-white/90 dark:hover:text-white'
+                  : 'text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-amber-400'
+              }`}>
                 Categories <FiChevronDown className="ml-1 group-hover:rotate-180 transition-transform duration-300" />
               </button>
               <div className="absolute top-[80%] left-0 mt-2 w-56 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-xl shadow-hover opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:top-full transition-all duration-300 transform origin-top border border-gray-100 dark:border-slate-700/50">
@@ -102,29 +116,25 @@ export default function Navbar() {
                 </div>
               </div>
             </div>
-            <Link
-              href="/about"
-              className={`font-medium transition-colors ${pathname === '/about' ? 'text-accent' : 'text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent'}`}
-            >
+            <Link href="/about" className={navLinkClass('/about')}>
               About
             </Link>
-            <Link
-              href="/contact"
-              className={`font-medium transition-colors ${pathname === '/contact' ? 'text-accent' : 'text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent'}`}
-            >
+            <Link href="/contact" className={navLinkClass('/contact')}>
               Contact
             </Link>
           </nav>
 
           {/* Desktop Action Icons */}
           <div className="hidden lg:flex items-center space-x-4">
-            <ThemeToggle />
+            <div className={isHomePage && !isScrolled ? 'brightness-0 invert' : ''}>
+              <ThemeToggle />
+            </div>
 
-            <Link href="/search" className="p-2 text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent transition-colors">
+            <Link href="/search" className={iconClass}>
               <FiSearch size={22} />
             </Link>
 
-            <Link href="/wishlist" className="p-2 text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent transition-colors relative">
+            <Link href="/wishlist" className={iconClass}>
               <FiHeart size={22} />
               {wishlistCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-white text-xs rounded-full flex items-center justify-center">
@@ -133,7 +143,7 @@ export default function Navbar() {
               )}
             </Link>
 
-            <Link href="/cart" className="p-2 text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent transition-colors relative">
+            <Link href="/cart" className={iconClass}>
               <FiShoppingCart size={22} />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-white text-xs rounded-full flex items-center justify-center">
@@ -146,7 +156,11 @@ export default function Navbar() {
               <div className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-2 p-2 text-gray-700 hover:text-accent transition-colors"
+                  className={`flex items-center space-x-2 p-2 transition-colors ${
+                    isHomePage && !isScrolled
+                      ? 'text-white/90 hover:text-white'
+                      : 'text-gray-700 hover:text-accent'
+                  }`}
                 >
                   <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center text-white font-medium shadow-soft">
                     {user.name?.charAt(0).toUpperCase()}
@@ -187,11 +201,11 @@ export default function Navbar() {
 
           {/* Mobile Action Icons */}
           <div className="flex lg:hidden items-center space-x-3">
-            <Link href="/search" className="p-2 text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent transition-colors">
+            <Link href="/search" className={iconClass}>
               <FiSearch size={22} />
             </Link>
 
-            <Link href="/cart" className="p-2 text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent transition-colors relative">
+            <Link href="/cart" className={iconClass}>
               <FiShoppingCart size={22} />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-accent text-white text-xs rounded-full flex items-center justify-center">
@@ -201,7 +215,7 @@ export default function Navbar() {
             </Link>
 
             <button
-              className="p-2 text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent transition-colors z-50 relative"
+              className={`${iconClass} z-50 relative`}
               onClick={() => setIsMenuOpen(true)}
               aria-label="Open menu"
             >

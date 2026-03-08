@@ -189,8 +189,8 @@ export default function CouponsContent() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Coupons</h1>
-          <p className="text-gray-500 mt-1">Manage discount coupons</p>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Coupons</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage discount coupons</p>
         </div>
         <button
           onClick={() => {
@@ -204,7 +204,7 @@ export default function CouponsContent() {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-card p-6 mb-6">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-card p-6 mb-6">
         <div className="flex flex-col sm:flex-row justify-between gap-4">
           <div className="relative flex-1 max-w-md">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -216,13 +216,13 @@ export default function CouponsContent() {
               className="input pl-10"
             />
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 dark:text-gray-400">
             Showing {coupons.length} of {pagination.total} coupons
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-card">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-card">
         {loading ? (
           <div className="p-6 space-y-4">
             {[...Array(5)].map((_, i) => (
@@ -231,53 +231,53 @@ export default function CouponsContent() {
           </div>
         ) : coupons.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500">No coupons found</p>
+            <p className="text-gray-500 dark:text-gray-400">No coupons found</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b bg-gray-50">
-                  <th className="text-left py-3 px-4 font-medium">Code</th>
-                  <th className="text-left py-3 px-4 font-medium">Discount</th>
-                  <th className="text-left py-3 px-4 font-medium">Usage</th>
-                  <th className="text-left py-3 px-4 font-medium">Valid Until</th>
-                  <th className="text-left py-3 px-4 font-medium">Status</th>
-                  <th className="text-left py-3 px-4 font-medium">Actions</th>
+                <tr className="border-b bg-gray-50 dark:bg-slate-700">
+                  <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-200">Code</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-200">Discount</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-200">Usage</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-200">Valid Until</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-200">Status</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-200">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {coupons.map((coupon) => (
-                  <tr key={coupon._id} className="border-b hover:bg-gray-50">
+                  <tr key={coupon._id} className="border-b hover:bg-gray-50 dark:hover:bg-slate-700/50">
                     <td className="py-3 px-4">
                       <div>
-                        <span className="font-semibold font-mono bg-gray-100 px-2 py-1 rounded">
+                        <span className="font-semibold font-mono bg-gray-100 dark:bg-slate-700 px-2 py-1 rounded text-gray-800 dark:text-white">
                           {coupon.code}
                         </span>
                         {coupon.description && (
-                          <p className="text-sm text-gray-500 mt-1">{coupon.description}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{coupon.description}</p>
                         )}
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="font-medium text-green-600">
+                      <span className="font-medium text-green-600 dark:text-green-400">
                         {coupon.discountType === 'percentage' 
                           ? `${coupon.discountValue}%` 
                           : `$${coupon.discountValue}`
                         }
                       </span>
                       {coupon.maxDiscountValue && (
-                        <p className="text-xs text-gray-500">Max: ${coupon.maxDiscountValue}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Max: ${coupon.maxDiscountValue}</p>
                       )}
                     </td>
                     <td className="py-3 px-4">
-                      <span className={coupon.usageLimit && coupon.usedCount >= coupon.usageLimit ? 'text-red-500' : ''}>
+                      <span className={coupon.usageLimit && coupon.usedCount >= coupon.usageLimit ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'}>
                         {coupon.usedCount || 0}
                         {coupon.usageLimit ? ` / ${coupon.usageLimit}` : ' / ∞'}
                       </span>
                     </td>
                     <td className="py-3 px-4">
-                      <span className={isExpired(coupon.expiryDate) ? 'text-red-500' : ''}>
+                      <span className={isExpired(coupon.expiryDate) ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'}>
                         {new Date(coupon.expiryDate).toLocaleDateString()}
                       </span>
                       {isExpired(coupon.expiryDate) && (
@@ -299,13 +299,13 @@ export default function CouponsContent() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => openEditModal(coupon)}
-                          className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg"
+                          className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg"
                         >
                           <FiEdit size={18} />
                         </button>
                         <button
                           onClick={() => handleDelete(coupon._id)}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                          className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg"
                         >
                           <FiTrash2 size={18} />
                         </button>
@@ -327,8 +327,8 @@ export default function CouponsContent() {
                   onClick={() => setPagination((prev) => ({ ...prev, page }))}
                   className={`w-10 h-10 rounded-lg ${
                     pagination.page === page
-                      ? 'bg-primary text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-accent text-white'
+                      : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
                   }`}
                 >
                   {page}
@@ -341,9 +341,9 @@ export default function CouponsContent() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b">
-              <h2 className="text-xl font-bold">
+          <div className="bg-white dark:bg-slate-800 rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b dark:border-slate-700">
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white">
                 {editingCoupon ? 'Edit Coupon' : 'Add New Coupon'}
               </h2>
             </div>

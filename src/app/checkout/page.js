@@ -42,10 +42,10 @@ export default function CheckoutPage() {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
 
-  const subtotal = getTotal();
+  const subtotal = getTotal() || 0;
   const shippingCost = subtotal > 100 ? 0 : 10;
-  const tax = subtotal * 0.08;
-  const total = subtotal + shippingCost + tax - discount;
+  const tax = subtotal * 0.08 || 0;
+  const total = (subtotal + shippingCost + tax - discount) || 0;
 
   useEffect(() => {
     if (items.length === 0 && !orderPlaced) {
@@ -113,20 +113,20 @@ export default function CheckoutPage() {
         items: items.map((item) => ({
           productId: item._id,
           name: item.name,
-          price: item.price,
-          quantity: item.quantity,
+          price: parseFloat(item.price) || 0,
+          quantity: parseInt(item.quantity, 10) || 1,
           image: item.image,
           size: item.size,
           color: item.color,
         })),
         shippingAddress,
         paymentMethod,
-        subtotal,
-        shippingCost,
-        tax,
-        discount,
+        subtotal: parseFloat(subtotal) || 0,
+        shippingCost: parseFloat(shippingCost) || 0,
+        tax: parseFloat(tax) || 0,
+        discount: parseFloat(discount) || 0,
         couponCode: appliedCoupon?.code,
-        total,
+        total: parseFloat(total) || 0,
         isGuestOrder: !user,
         guestEmail: !user ? shippingAddress.email : null,
       };
@@ -193,7 +193,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8 pt-20 lg:pt-8 transition-colors">
       <div className="container">
         <div className="flex items-center mb-8">
           <Link
@@ -625,7 +625,7 @@ export default function CheckoutPage() {
                       </p>
                     </div>
                     <p className="font-medium text-sm dark:text-gray-200">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ${((parseFloat(item.price) || 0) * (parseInt(item.quantity) || 0)).toFixed(2)}
                     </p>
                   </div>
                 ))}
@@ -633,30 +633,30 @@ export default function CheckoutPage() {
 
               <div className="border-t pt-4 mb-4">
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
+                  <span className="dark:text-white">${(parseFloat(subtotal) || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-600">Shipping</span>
-                  <span>
+                  <span className="text-gray-600 dark:text-gray-400">Shipping</span>
+                  <span className="dark:text-white">
                     {shippingCost === 0 ?
                       "Free"
-                    : `$${shippingCost.toFixed(2)}`}
+                    : `$${(parseFloat(shippingCost) || 0).toFixed(2)}`}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-600">Tax</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Tax</span>
+                  <span className="dark:text-white">${(parseFloat(tax) || 0).toFixed(2)}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-sm mb-2 text-green-500">
                     <span>Discount</span>
-                    <span>-${discount.toFixed(2)}</span>
+                    <span>-${(parseFloat(discount) || 0).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                  <span>Total</span>
-                  <span className="text-accent">${total.toFixed(2)}</span>
+                  <span className="dark:text-white">Total</span>
+                  <span className="text-accent">${(parseFloat(total) || 0).toFixed(2)}</span>
                 </div>
               </div>
 

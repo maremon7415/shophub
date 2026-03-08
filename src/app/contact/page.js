@@ -28,13 +28,13 @@ export default function ContactPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
       <Navbar />
       <div className="pt-24 pb-16">
         <div className="container">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold font-display mb-4">Contact Us</h1>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <h1 className="text-4xl font-bold font-display mb-4 dark:text-white">Contact Us</h1>
+            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Have questions? We'd love to hear from you. Send us a message and
               we'll respond as soon as possible.
             </p>
@@ -42,8 +42,8 @@ export default function ContactPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-card p-8">
-                <h3 className="text-xl font-semibold mb-6">Get in Touch</h3>
+              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-card p-8">
+                <h3 className="text-xl font-semibold mb-6 dark:text-white">Get in Touch</h3>
 
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
@@ -51,8 +51,8 @@ export default function ContactPage() {
                       <FiMapPin />
                     </div>
                     <div>
-                      <p className="font-medium">Address</p>
-                      <p className="text-sm text-gray-500">
+                      <p className="font-medium dark:text-white">Address</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         123 Commerce Street, Business City, BC 12345
                       </p>
                     </div>
@@ -63,8 +63,8 @@ export default function ContactPage() {
                       <FiMail />
                     </div>
                     <div>
-                      <p className="font-medium">Email</p>
-                      <p className="text-sm text-gray-500">
+                      <p className="font-medium dark:text-white">Email</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         support@shophub.com
                       </p>
                     </div>
@@ -75,8 +75,8 @@ export default function ContactPage() {
                       <FiPhone />
                     </div>
                     <div>
-                      <p className="font-medium">Phone</p>
-                      <p className="text-sm text-gray-500">+1 (234) 567-890</p>
+                      <p className="font-medium dark:text-white">Phone</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">+1 (234) 567-890</p>
                     </div>
                   </div>
 
@@ -85,8 +85,8 @@ export default function ContactPage() {
                       <FiClock />
                     </div>
                     <div>
-                      <p className="font-medium">Working Hours</p>
-                      <p className="text-sm text-gray-500">
+                      <p className="font-medium dark:text-white">Working Hours</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         Mon - Fri: 9AM - 6PM
                       </p>
                     </div>
@@ -96,15 +96,15 @@ export default function ContactPage() {
             </div>
 
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl shadow-card p-8">
-                <h3 className="text-xl font-semibold mb-6">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-card p-8">
+                <h3 className="text-xl font-semibold mb-6 dark:text-white">
                   Send us a Message
                 </h3>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Name
                       </label>
                       <input
@@ -118,7 +118,7 @@ export default function ContactPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Email
                       </label>
                       <input
@@ -134,7 +134,7 @@ export default function ContactPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Subject
                     </label>
                     <input
@@ -149,7 +149,7 @@ export default function ContactPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Message
                     </label>
                     <textarea

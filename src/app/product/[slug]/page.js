@@ -112,7 +112,7 @@ export default function ProductDetailPage() {
   const images = product.images?.length > 0 ? product.images : [product.image];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-8 transition-colors">
       <div className="container">
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
           <Link href="/" className="hover:text-accent">Home</Link>
@@ -199,13 +199,13 @@ export default function ProductDetailPage() {
             </div>
 
             <div className="flex items-baseline gap-3 mb-6">
-              <span className="text-3xl font-bold text-accent">${product.price?.toFixed(2)}</span>
-              {product.comparePrice > product.price && (
-                <span className="text-xl text-gray-400 line-through">${product.comparePrice?.toFixed(2)}</span>
+              <span className="text-3xl font-bold text-accent">${(parseFloat(product.price) || 0).toFixed(2)}</span>
+              {parseFloat(product.comparePrice) > parseFloat(product.price) && (
+                <span className="text-xl text-gray-400 line-through">${(parseFloat(product.comparePrice) || 0).toFixed(2)}</span>
               )}
-              {product.comparePrice > product.price && (
+              {parseFloat(product.comparePrice) > parseFloat(product.price) && (
                 <span className="text-red-500 font-medium">
-                  {Math.round((1 - product.price / product.comparePrice) * 100)}% OFF
+                  {Math.round((1 - parseFloat(product.price) / parseFloat(product.comparePrice)) * 100)}% OFF
                 </span>
               )}
             </div>

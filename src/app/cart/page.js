@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function CartPage() {
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-slate-900">
+    <main className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
       <Navbar />
       <div className="pt-24 pb-16">
         <CartContent />
