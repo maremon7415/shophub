@@ -9,6 +9,18 @@ export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Throttle or requestAnimationFrame for better performance
+      window.requestAnimationFrame(() => setScrollY(window.scrollY));
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     fetch('/api/banners?position=home&activeOnly=true')
@@ -24,12 +36,30 @@ export default function HeroSection() {
   }, []);
 
   useEffect(() => {
-    if (banners.length <= 1) return;
+    if (banners.length <= 1 || isHovered) return;
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % banners.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, [banners.length]);
+  }, [banners.length, isHovered]);
+
+  const handleTouchStart = (e) => setTouchStart(e.targetTouches[0].clientX);
+  const handleTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+    
+    if (isLeftSwipe) {
+      nextSlide();
+    } else if (isRightSwipe) {
+      prevSlide();
+    }
+    
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % banners.length);
@@ -84,9 +114,12 @@ export default function HeroSection() {
 
   return (
     <section
-      className="relative h-[85vh] min-h-[600px] overflow-hidden"
+      className="relative h-[85vh] min-h-[600px] overflow-hidden group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       <div className="h-full">
         {displayBanners.map((banner, index) => (
@@ -95,10 +128,13 @@ export default function HeroSection() {
             className={`absolute inset-0 transition-all duration-700 ease-in-out ${index === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
               }`}
           >
-            <div className="h-full relative">
+            <div className="h-full relative overflow-hidden">
               <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${banner.image})` }}
+                className={`absolute inset-0 bg-cover bg-center transition-transform duration-[8000ms] ease-linear transform-gpu ${index === currentSlide ? 'scale-110' : 'scale-100'}`}
+                style={{ 
+                  backgroundImage: `url(${banner.image})`,
+                  transform: `translateY(${scrollY * 0.4}px) scale(${index === currentSlide ? 1.05 : 1})`,
+                }}
               />
               <div className="absolute inset-0 bg-linear-to-r from-black/90 via-black/60 to-black/30" />
               <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />

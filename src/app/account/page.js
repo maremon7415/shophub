@@ -19,6 +19,11 @@ import {
   FiCheck,
   FiShoppingBag,
   FiChevronRight,
+  FiInstagram,
+  FiTwitter,
+  FiFacebook,
+  FiGlobe,
+  FiLink,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 
@@ -36,6 +41,10 @@ export default function AccountPage() {
     phone: "",
     dateOfBirth: "",
     gender: "",
+    bio: "",
+    profileUrl: "",
+    isProfilePublic: true,
+    socialLinks: { instagram: "", twitter: "", facebook: "" }
   });
 
   const [passwords, setPasswords] = useState({
@@ -84,6 +93,10 @@ export default function AccountPage() {
               new Date(data.user.dateOfBirth).toISOString().split("T")[0]
             : "",
           gender: data.user.gender || "",
+          bio: data.user.bio || "",
+          profileUrl: data.user.profileUrl || data.user.image || "",
+          isProfilePublic: data.user.isProfilePublic !== false,
+          socialLinks: data.user.socialLinks || { instagram: "", twitter: "", facebook: "" }
         });
       }
     } catch (err) {
@@ -124,7 +137,66 @@ export default function AccountPage() {
   };
 
   const handleProfileChange = (e) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value });
+    if (e.target.name.startsWith('social_')) {
+      const network = e.target.name.split('_')[1];
+      setProfile({
+        ...profile,
+        socialLinks: { ...profile.socialLinks, [network]: e.target.value }
+      });
+    } else if (e.target.type === 'checkbox') {
+      setProfile({ ...profile, [e.target.name]: e.target.checked });
+    } else {
+      setProfile({ ...profile, [e.target.name]: e.target.value });
+    }
+  };
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setLoading(true);
+    const toastId = toast.loading('Uploading avatar...');
+
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Data = reader.result;
+        const authStorage = localStorage.getItem("auth-storage");
+        const token = authStorage ? JSON.parse(authStorage).state?.token : "";
+
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ image: base64Data })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          setProfile({ ...profile, profileUrl: data.url });
+          toast.success('Avatar uploaded successfully', { id: toastId });
+        } else {
+          toast.error(data.error || 'Failed to upload avatar', { id: toastId });
+        }
+        setLoading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      toast.error('An error occurred during upload', { id: toastId });
+      setLoading(false);
+    }
   };
 
   const handleUpdateProfile = async (e) => {
@@ -358,11 +430,16 @@ export default function AccountPage() {
               className="space-y-8 max-w-2xl animate-fade-in"
             >
               <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-6 p-4 md:p-6 bg-linear-to-br from-amber-50 to-orange-50 dark:from-slate-800/80 dark:to-slate-800 border border-amber-100 dark:border-slate-700 rounded-2xl shadow-sm">
-                <div className="w-20 h-20 md:w-24 md:h-24 bg-linear-to-br from-amber-400 to-orange-600 rounded-full flex items-center justify-center text-white text-3xl md:text-4xl font-bold shadow-soft ring-4 ring-white dark:ring-slate-900 group relative shrink-0">
-                  {profile.name?.charAt(0).toUpperCase() || "U"}
-                  <div className="absolute inset-0 bg-black/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                    <FiEdit2 size={20} className="text-white drop-shadow-md md:size-24" />
-                  </div>
+                <div className="w-20 h-20 md:w-24 md:h-24 bg-linear-to-br from-amber-400 to-orange-600 rounded-full flex items-center justify-center text-white text-3xl md:text-4xl font-bold shadow-soft ring-4 ring-white dark:ring-slate-900 group relative shrink-0 overflow-hidden">
+                  {profile.profileUrl ? (
+                    <img src={profile.profileUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    profile.name?.charAt(0).toUpperCase() || "U"
+                  )}
+                  <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                    <FiEdit2 size={24} className="text-white drop-shadow-md" />
+                    <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} disabled={loading} />
+                  </label>
                 </div>
                 <div className="text-center sm:text-left flex-1">
                   <h3 className="font-bold text-xl md:text-2xl text-gray-900 dark:text-white mb-1">
@@ -425,6 +502,83 @@ export default function AccountPage() {
                     onChange={handleProfileChange}
                     className="input"
                   />
+                </div>
+              </div>
+
+              <div className="border-t border-gray-100 dark:border-slate-800 pt-8 mt-8">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h4 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                      <FiGlobe className="text-accent" /> Public Profile
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your public presence on ShopHub.</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="isProfilePublic" checked={profile.isProfilePublic} onChange={handleProfileChange} className="sr-only peer" />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-accent hover:opacity-90"></div>
+                  </label>
+                </div>
+                
+                {profile.isProfilePublic && user?.userId && (
+                  <div className="mb-6 p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-100 dark:border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 overflow-hidden w-full">
+                      <FiLink className="text-gray-400 shrink-0" />
+                      <span className="text-sm text-gray-600 dark:text-gray-300 truncate select-all">{typeof window !== 'undefined' ? window.location.origin : ''}/profile/{user.userId}</span>
+                    </div>
+                    <Link href={`/profile/${user.userId}`} className="btn btn-outline py-2 text-sm whitespace-nowrap shrink-0">
+                      View Profile
+                    </Link>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Bio
+                    </label>
+                    <textarea
+                      name="bio"
+                      value={profile.bio}
+                      onChange={handleProfileChange}
+                      className="input"
+                      rows="3"
+                      placeholder="Tell us a little about yourself..."
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                      <FiInstagram /> Instagram Username
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">@</span>
+                      <input
+                        type="text"
+                        name="social_instagram"
+                        value={profile.socialLinks.instagram}
+                        onChange={handleProfileChange}
+                        className="input pl-8"
+                        placeholder="username"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                      <FiTwitter /> Twitter Username
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">@</span>
+                      <input
+                        type="text"
+                        name="social_twitter"
+                        value={profile.socialLinks.twitter}
+                        onChange={handleProfileChange}
+                        className="input pl-8"
+                        placeholder="username"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 

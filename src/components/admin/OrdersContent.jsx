@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { FiSearch, FiEye, FiTruck, FiCheckCircle, FiXCircle, FiClock, FiRefreshCw } from 'react-icons/fi';
+import { FiSearch, FiEye, FiTruck, FiCheckCircle, FiXCircle, FiClock, FiRefreshCw, FiDownload, FiCheckSquare, FiPrinter } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 const statusColors = {
@@ -26,6 +26,8 @@ export default function OrdersContent() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrderIds, setSelectedOrderIds] = useState([]);
+  const [batchStatusValue, setBatchStatusValue] = useState('');
   const [isRealTimeEnabled, setIsRealTimeEnabled] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(null);
   const eventSourceRef = useRef(null);
@@ -174,6 +176,69 @@ export default function OrdersContent() {
     }
   };
 
+  const handleBatchUpdateStatus = async () => {
+    if (!batchStatusValue || selectedOrderIds.length === 0) return;
+    toast.error('Restricted by author');
+    return;
+    
+    try {
+      const authStorage = localStorage.getItem('auth-storage');
+      const token = authStorage ? JSON.parse(authStorage).state?.token : '';
+
+      const promises = selectedOrderIds.map(orderId => 
+        fetch(`/api/admin/orders/${orderId}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status: batchStatusValue }),
+        })
+      );
+
+      await Promise.all(promises);
+      toast.success(`Batch updated ${selectedOrderIds.length} orders to ${batchStatusValue}`);
+      setSelectedOrderIds([]);
+      setBatchStatusValue('');
+      fetchOrders();
+    } catch (err) {
+      toast.error('Failed to batch update orders');
+    }
+  };
+
+  const exportToCSV = () => {
+    const headers = ['Order Number', 'Date', 'Customer Name', 'Email', 'City', 'Country', 'Total', 'Payment Status', 'Order Status'];
+    const rows = filteredOrders.map(o => [
+      o.orderNumber,
+      new Date(o.createdAt).toLocaleDateString(),
+      o.shippingAddress?.fullName || '',
+      o.shippingAddress?.email || '',
+      o.shippingAddress?.city || '',
+      o.shippingAddress?.country || '',
+      o.total,
+      o.paymentStatus,
+      o.status
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `orders_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   const filteredOrders = orders.filter(order =>
     (order.orderNumber?.toLowerCase() || '').includes(search.toLowerCase()) ||
     (order.shippingAddress?.fullName?.toLowerCase() || '').includes(search.toLowerCase()) ||
@@ -196,14 +261,19 @@ export default function OrdersContent() {
             {isRealTimeEnabled ? 'Live' : 'Off'}
           </button>
           {lastUpdate && (
-            <span className="text-xs text-gray-400 dark:text-gray-500">
+            <span className="text-xs text-gray-400 dark:text-gray-500 hidden sm:block">
               Last update: {lastUpdate.toLocaleTimeString()}
             </span>
           )}
         </div>
-        <button onClick={fetchOrders} className="btn btn-outline">
-          <FiRefreshCw className="mr-2" /> Refresh
-        </button>
+        <div className="flex items-center gap-3">
+          <button onClick={exportToCSV} className="btn btn-outline text-sm">
+            <FiDownload className="mr-2" /> Export
+          </button>
+          <button onClick={fetchOrders} className="btn btn-outline text-sm">
+            <FiRefreshCw className="mr-2" /> Refresh
+          </button>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-card p-6 mb-6">
@@ -231,6 +301,41 @@ export default function OrdersContent() {
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
+
+        {selectedOrderIds.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
+            <div className="text-sm font-medium text-blue-800 dark:text-blue-300">
+              {selectedOrderIds.length} orders selected
+            </div>
+            <div className="flex items-center gap-3">
+              <select
+                value={batchStatusValue}
+                onChange={(e) => setBatchStatusValue(e.target.value)}
+                className="input py-1.5 text-sm w-40"
+              >
+                <option value="">Update status...</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <button 
+                onClick={handleBatchUpdateStatus}
+                disabled={!batchStatusValue}
+                className="btn btn-primary py-1.5 px-4 text-sm disabled:opacity-50 shrink-0"
+              >
+                Apply
+              </button>
+              <button 
+                onClick={() => setSelectedOrderIds([])}
+                className="btn btn-outline py-1.5 px-4 text-sm shrink-0"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -248,6 +353,22 @@ export default function OrdersContent() {
               </div>
             ) : (
               <div className="divide-y divide-gray-100 dark:divide-slate-700">
+                <div className="p-4 bg-gray-50 dark:bg-slate-700/30 flex justify-between items-center hidden sm:flex border-b border-gray-100 dark:border-slate-700 text-sm font-medium text-gray-500 rounded-t-xl">
+                  <div className="flex items-center gap-3 flex-1">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-gray-300 text-accent focus:ring-accent"
+                      checked={filteredOrders.length > 0 && selectedOrderIds.length === filteredOrders.length}
+                      onChange={(e) => {
+                        if (e.target.checked) setSelectedOrderIds(filteredOrders.map(o => o._id));
+                        else setSelectedOrderIds([]);
+                      }}
+                    />
+                    <span>Order Info</span>
+                  </div>
+                  <div className="text-right">Amount / Status</div>
+                </div>
+
                 {filteredOrders.map((order) => (
                   <div
                     key={order._id}
@@ -255,24 +376,40 @@ export default function OrdersContent() {
                     className={`p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors ${selectedOrder?._id === order._id ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                       }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold text-gray-800 dark:text-white">{order.orderNumber}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {order.shippingAddress?.fullName} • {order.shippingAddress?.city}
-                        </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {new Date(order.createdAt).toLocaleDateString()}
-                        </p>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3">
+                        <div className="pt-1">
+                          <input 
+                            type="checkbox" 
+                            className="rounded border-gray-300 text-accent focus:ring-accent cursor-pointer"
+                            checked={selectedOrderIds.includes(order._id)}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              if (e.target.checked) setSelectedOrderIds([...selectedOrderIds, order._id]);
+                              else setSelectedOrderIds(selectedOrderIds.filter(id => id !== order._id));
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-800 dark:text-white">{order.orderNumber}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            {order.shippingAddress?.fullName} • {order.shippingAddress?.city}
+                          </p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                            {new Date(order.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
                       <div className="text-right">
                         <p className="font-semibold text-gray-800 dark:text-white">${(parseFloat(order.total) || 0).toFixed(2)}</p>
-                        <span className={`badge ${statusColors[order.status]} mt-1`}>
-                          {order.status}
-                        </span>
-                        <span className={`badge ${paymentStatusColors[order.paymentStatus]} ml-1 mt-1`}>
-                          {order.paymentStatus}
-                        </span>
+                        <div className="flex flex-col items-end gap-1 mt-2">
+                          <span className={`badge ${statusColors[order.status]} text-xs`}>
+                            {order.status}
+                          </span>
+                          <span className={`badge ${paymentStatusColors[order.paymentStatus]} text-xs`}>
+                            {order.paymentStatus}
+                          </span>
+                        </div>
                       </div>
                     </div>
                     {order.trackingNumber && (
@@ -290,9 +427,54 @@ export default function OrdersContent() {
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-card p-6 h-fit sticky top-24">
           {selectedOrder ? (
             <div>
-              <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Order Details</h3>
+              <div className="flex items-center justify-between mb-4 print:hidden">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Order Details</h3>
+                <button onClick={handlePrint} className="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 bg-gray-100 dark:bg-slate-700 rounded-lg">
+                  <FiPrinter size={18} />
+                </button>
+              </div>
 
-              <div className="space-y-4">
+              {/* Order Timeline */}
+              <div className="mb-6 pb-6 border-b border-gray-100 dark:border-slate-700 print:hidden">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Order Status</p>
+                <div className="relative">
+                  <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 dark:bg-slate-700 -z-10 -translate-y-1/2 rounded max-w-[calc(100%-2rem)] mx-4"></div>
+                  
+                  {selectedOrder.status === 'cancelled' ? (
+                    <div className="flex justify-between w-full relative z-10 px-4">
+                      <div className="flex flex-col items-center">
+                        <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white"><FiXCircle /></div>
+                        <span className="text-xs font-semibold text-red-500 mt-2">Cancelled</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between w-full relative z-10 px-4">
+                      {['pending', 'processing', 'shipped', 'delivered'].map((step, idx) => {
+                        const statuses = ['pending', 'processing', 'shipped', 'delivered'];
+                        const currentIdx = statuses.indexOf(selectedOrder.status);
+                        const isCompleted = idx <= currentIdx;
+                        const isCurrent = idx === currentIdx;
+                        
+                        return (
+                          <div key={step} className="flex flex-col items-center">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white transition-colors
+                              ${isCompleted ? 'bg-accent' : 'bg-gray-300 dark:bg-slate-600'}
+                              ${isCurrent ? 'ring-4 ring-accent/30' : ''}
+                            `}>
+                              {idx === 0 ? <FiClock /> : idx === 1 ? <FiRefreshCw /> : idx === 2 ? <FiTruck /> : <FiCheckCircle />}
+                            </div>
+                            <span className={`text-xs mt-2 font-medium capitalize ${isCompleted ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>
+                              {step}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-4 print:space-y-6">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Order Number</p>
                   <p className="font-medium text-gray-800 dark:text-white">{selectedOrder.orderNumber}</p>
@@ -372,6 +554,12 @@ export default function OrdersContent() {
                       </button>
                     ))}
                   </div>
+                </div>
+
+                {/* Print Only Header */}
+                <div className="hidden print:block mb-8 text-center pb-8 border-b border-gray-200">
+                  <h1 className="text-3xl font-bold mb-2">ShopHub Invoice</h1>
+                  <p className="text-gray-500">Order #{selectedOrder.orderNumber}</p>
                 </div>
 
                 {(selectedOrder.status === 'shipped' || selectedOrder.status === 'delivered') && (

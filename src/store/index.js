@@ -112,3 +112,56 @@ export const useAuthStore = create(
     }
   )
 );
+
+export const useRecentStore = create(
+  persist(
+    (set, get) => ({
+      items: [],
+      addItem: (product) => {
+        const items = get().items;
+        const filteredItems = items.filter((item) => item._id !== product._id);
+        const newItems = [product, ...filteredItems].slice(0, 10);
+        set({ items: newItems });
+      },
+      clearRecent: () => set({ items: [] }),
+    }),
+    {
+      name: 'recent-storage',
+    }
+  )
+);
+
+export const useCompareStore = create(
+  persist(
+    (set, get) => ({
+      items: [],
+      addItem: (product) => {
+        const items = get().items;
+        if (items.length >= 4) return;
+        if (!items.find((item) => item._id === product._id)) {
+          set({ items: [...items, product] });
+        }
+      },
+      removeItem: (productId) => {
+        const items = get().items.filter((item) => item._id !== productId);
+        set({ items });
+      },
+      clearCompare: () => set({ items: [] }),
+      isInCompare: (productId) => {
+        return get().items.some((item) => item._id === productId);
+      },
+    }),
+    {
+      name: 'compare-storage',
+    }
+  )
+);
+
+export const useQuickViewStore = create((set) => ({
+  isOpen: false,
+  product: null,
+  openQuickView: (product) => set({ isOpen: true, product }),
+  closeQuickView: () => set({ isOpen: false, product: null }),
+}));
+
+export * from './stockNotification';

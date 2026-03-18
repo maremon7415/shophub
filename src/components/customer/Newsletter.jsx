@@ -13,11 +13,26 @@ export default function Newsletter() {
 
     setLoading(true);
 
-    setTimeout(() => {
-      toast.success('Successfully subscribed to newsletter!');
-      setEmail('');
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success(data.message || 'Successfully subscribed to newsletter!');
+        setEmail('');
+      } else {
+        toast.error(data.message || 'Failed to subscribe');
+      }
+    } catch (error) {
+      toast.error('Something went wrong. Please try again.');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (

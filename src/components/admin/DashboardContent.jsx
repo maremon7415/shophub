@@ -29,15 +29,23 @@ const RevenueChart = ({ data }) => {
   const maxValue = Math.max(...(data || []).map(d => d.revenue), 1);
   const isDark = true;
   
+  if (!data || data.length === 0) {
+    return <div className="h-64 flex items-center justify-center text-gray-500">No revenue data for this period</div>;
+  }
+  
   return (
     <div className="h-64 flex items-end justify-between gap-2 px-4">
-      {(data || []).map((item, index) => (
-        <div key={index} className="flex-1 flex flex-col items-center">
+      {data.map((item, index) => (
+        <div key={index} className="flex-1 flex flex-col items-center group relative">
           <div 
-            className={`w-full rounded-t-md transition-all duration-500 hover:opacity-80 ${isDark ? 'bg-gradient-to-t from-amber-600 to-amber-500' : 'bg-gradient-to-t from-primary/80 to-primary'}`}
-            style={{ height: `${(item.revenue / maxValue) * 200}px` }}
-          />
-          <span className="text-xs text-gray-500 dark:text-gray-400 mt-2">{item.day}</span>
+            className={`w-full rounded-t-md transition-all duration-500 hover:opacity-80 relative ${isDark ? 'bg-gradient-to-t from-amber-600 to-amber-500' : 'bg-gradient-to-t from-primary/80 to-primary'}`}
+            style={{ height: `${(item.revenue / maxValue) * 200}px`, minHeight: '4px' }}
+          >
+            <div className="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded transition-opacity whitespace-nowrap z-10 pointer-events-none">
+              ${item.revenue.toFixed(2)}
+            </div>
+          </div>
+          <span className="text-xs text-gray-500 dark:text-gray-400 mt-2 truncate w-full text-center">{item.day}</span>
         </div>
       ))}
     </div>
@@ -97,38 +105,10 @@ export default function DashboardContent() {
   }
 
   const statCards = [
-    {
-      label: 'Total Users',
-      value: stats?.stats?.totalUsers?.toLocaleString() || '0',
-      icon: FiUsers,
-      color: 'bg-gradient-to-br from-blue-500 to-blue-600',
-      change: '+12%',
-      trend: 'up',
-    },
-    {
-      label: 'Total Products',
-      value: stats?.stats?.totalProducts?.toLocaleString() || '0',
-      icon: FiPackage,
-      color: 'bg-gradient-to-br from-purple-500 to-purple-600',
-      change: '+5%',
-      trend: 'up',
-    },
-    {
-      label: 'Total Orders',
-      value: stats?.stats?.totalOrders?.toLocaleString() || '0',
-      icon: FiShoppingCart,
-      color: 'bg-gradient-to-br from-green-500 to-green-600',
-      change: '+18%',
-      trend: 'up',
-    },
-    {
-      label: 'Total Revenue',
-      value: `$${(stats?.stats?.totalRevenue || 0).toLocaleString()}`,
-      icon: FiDollarSign,
-      color: 'bg-gradient-to-br from-amber-500 to-orange-500',
-      change: '+8%',
-      trend: 'up',
-    },
+    { label: 'Total Users', value: stats?.stats?.totalUsers?.toLocaleString() || '0', icon: FiUsers, color: 'bg-gradient-to-br from-blue-500 to-blue-600' },
+    { label: 'Total Products', value: stats?.stats?.totalProducts?.toLocaleString() || '0', icon: FiPackage, color: 'bg-gradient-to-br from-purple-500 to-purple-600' },
+    { label: 'Total Orders', value: stats?.stats?.totalOrders?.toLocaleString() || '0', icon: FiShoppingCart, color: 'bg-gradient-to-br from-green-500 to-green-600' },
+    { label: 'Total Revenue', value: `$${(stats?.stats?.totalRevenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, icon: FiDollarSign, color: 'bg-gradient-to-br from-amber-500 to-orange-500' },
   ];
 
   const quickActions = [
@@ -138,15 +118,15 @@ export default function DashboardContent() {
     { label: 'View Users', href: '/admin/users', icon: FiUsers, color: 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400' },
   ];
 
-  const revenueData = [
-    { day: 'Mon', revenue: 1200 },
-    { day: 'Tue', revenue: 1800 },
-    { day: 'Wed', revenue: 1400 },
-    { day: 'Thu', revenue: 2100 },
-    { day: 'Fri', revenue: 2800 },
-    { day: 'Sat', revenue: 3200 },
-    { day: 'Sun', revenue: 2400 },
-  ];
+  const revenueData = stats?.salesData?.map(d => {
+    const date = new Date(d._id);
+    // Add timezone offset to fix UTC date parsing issues showing day before
+    date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+    return {
+      day: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      revenue: d.total
+    };
+  }) || [];
 
   return (
     <div>
@@ -177,11 +157,7 @@ export default function DashboardContent() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-lg font-bold text-gray-800 dark:text-white">Revenue Overview</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Weekly revenue breakdown</p>
-            </div>
-            <div className="flex items-center gap-2 text-green-500 text-sm font-medium">
-              <FiTrendingUp size={16} />
-              +12.5%
+              <p className="text-sm text-gray-500 dark:text-gray-400">Daily revenue for selected period</p>
             </div>
           </div>
           <RevenueChart data={revenueData} />
@@ -280,6 +256,62 @@ export default function DashboardContent() {
                 <p className="text-sm text-green-600 dark:text-green-400 mt-1">Registered on your store</p>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-white mb-6">Top Selling Products</h2>
+          <div className="space-y-4">
+            {stats?.topProducts?.slice(0, 5).map((product, index) => (
+              <div key={product._id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
+                <div className="w-12 h-12 bg-gray-100 dark:bg-slate-700 rounded-lg overflow-hidden shrink-0 border border-gray-200 dark:border-slate-600">
+                  {product.image ? (
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <FiPackage className="w-full h-full p-3 text-gray-400" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-800 dark:text-white truncate" title={product.name}>{product.name}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{product.totalSold} sold in this period</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="font-bold text-accent">${(product.totalRevenue || 0).toFixed(2)}</p>
+                </div>
+              </div>
+            )) || (
+              <div className="text-center py-8 text-gray-400">No sales data available</div>
+            )}
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-white mb-6">Sales by Category</h2>
+          <div className="space-y-5">
+            {stats?.categoryStats?.slice(0, 5).map((cat, index) => {
+              const maxSold = Math.max(...stats.categoryStats.map(c => c.totalSold), 1);
+              const percentage = (cat.totalSold / maxSold) * 100;
+              const colors = ['bg-blue-500', 'bg-purple-500', 'bg-amber-500', 'bg-pink-500', 'bg-emerald-500'];
+              
+              return (
+                <div key={cat._id}>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="font-medium text-gray-700 dark:text-gray-300">{cat.category.name}</span>
+                    <span className="text-gray-500">{cat.totalSold} items</span>
+                  </div>
+                  <div className="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-2.5">
+                    <div 
+                      className={`h-2.5 rounded-full ${colors[index % colors.length]}`} 
+                      style={{ width: `${percentage}%` }}
+                    ></div>
+                  </div>
+                </div>
+              );
+            }) || (
+              <div className="text-center py-8 text-gray-400">No category data available</div>
+            )}
           </div>
         </div>
       </div>

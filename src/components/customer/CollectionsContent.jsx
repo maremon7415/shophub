@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FiGrid, FiList, FiFilter, FiX, FiShoppingCart, FiHeart, FiStar, FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import { useCartStore, useWishlistStore } from '@/store';
+import { FiGrid, FiList, FiFilter, FiX, FiShoppingCart, FiHeart, FiStar, FiChevronDown, FiChevronUp, FiRepeat } from 'react-icons/fi';
+import { useCartStore, useWishlistStore, useCompareStore } from '@/store';
 import toast from 'react-hot-toast';
 
 export default function CollectionsContent() {
@@ -14,6 +14,7 @@ export default function CollectionsContent() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(false);
@@ -35,13 +36,14 @@ export default function CollectionsContent() {
 
   const addItem = useCartStore((state) => state.addItem);
   const { items: wishlistItems, addItem: addToWishlist, removeItem: removeFromWishlist } = useWishlistStore();
+  const { items: compareItems, addItem: addToCompare, removeItem: removeFromCompare, isInCompare } = useCompareStore();
 
   useEffect(() => {
     fetchCategories();
   }, []);
 
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(false);
   }, [searchParams]);
 
   const fetchCategories = async () => {
@@ -54,24 +56,33 @@ export default function CollectionsContent() {
     }
   };
 
-  const fetchProducts = async () => {
-    setLoading(true);
+  const fetchProducts = async (isLoadMore = false) => {
+    if (isLoadMore) setLoadingMore(true);
+    else setLoading(true);
+
     try {
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
         if (value) params.append(key, value);
       });
-      params.append('page', pagination.page);
+      const targetPage = isLoadMore ? pagination.page + 1 : 1;
+      params.append('page', targetPage);
       params.append('limit', 12);
 
       const res = await fetch(`/api/products?${params}`);
       const data = await res.json();
-      setProducts(data.products || []);
+      
+      if (isLoadMore) {
+        setProducts((prev) => [...prev, ...(data.products || [])]);
+      } else {
+        setProducts(data.products || []);
+      }
       setPagination(data.pagination || { page: 1, pages: 1, total: 0 });
     } catch (err) {
       console.error('Failed to load products:', err);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -117,6 +128,20 @@ export default function CollectionsContent() {
     }
   };
 
+  const handleCompareToggle = (product) => {
+    if (isInCompare(product._id)) {
+      removeFromCompare(product._id);
+      toast.success('Removed from compare');
+    } else {
+      if (compareItems.length >= 4) {
+        toast.error('You can only compare up to 4 products');
+        return;
+      }
+      addToCompare(product);
+      toast.success('Added to compare');
+    }
+  };
+
   const isInWishlist = (productId) => wishlistItems.some((item) => item._id === productId);
 
   const toggleFilter = (filter) => {
@@ -145,11 +170,14 @@ export default function CollectionsContent() {
           />
         )}
         
-        <aside className={`lg:w-64 ${showFilters ? 'block' : 'hidden'} lg:block`}>
-          <div className={`bg-white dark:bg-slate-800 rounded-xl shadow-card p-6 lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto transition-colors
-            ${showFilters ? 'fixed top-0 left-0 h-full w-80 max-w-[85vw] z-50 overflow-y-auto rounded-none' : ''}`}>
+        <aside className={`lg:w-64 ${showFilters ? 'block' : 'hidden'} lg:block z-50`}>
+          <div className={`bg-white dark:bg-slate-800 lg:rounded-xl shadow-card p-6 lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto transition-transform duration-300
+            ${showFilters ? 'fixed bottom-0 left-0 w-full max-h-[85vh] rounded-t-3xl overflow-y-auto animate-slide-up shadow-[0_-10px_40px_rgba(0,0,0,0.1)]' : ''}`}>
+            {showFilters && (
+              <div className="w-12 h-1.5 bg-gray-300 dark:bg-slate-600 rounded-full mx-auto mb-6 lg:hidden" />
+            )}
             <div className="flex items-center justify-between mb-6">
-              <h3 className="font-semibold text-lg">Filters</h3>
+              <h3 className="font-bold text-xl lg:text-lg">Filters</h3>
               <div className="flex items-center gap-2">
                 {activeFiltersCount > 0 && (
                   <button
@@ -327,14 +355,14 @@ export default function CollectionsContent() {
             </div>
           </div>
 
-          {loading ? (
-            <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
+          {loading && !loadingMore ? (
+            <div className={`grid gap-4 sm:gap-6 ${viewMode === 'grid' ? 'grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="card">
-                  <div className="skeleton h-64" />
+                <div key={i} className="card overflow-hidden">
+                  <div className="skeleton animate-shimmer h-48 sm:h-64" />
                   <div className="p-4 space-y-3">
-                    <div className="skeleton h-4 w-3/4" />
-                    <div className="skeleton h-4 w-1/2" />
+                    <div className="skeleton animate-shimmer h-4 w-3/4 rounded" />
+                    <div className="skeleton animate-shimmer h-4 w-1/2 rounded" />
                   </div>
                 </div>
               ))}
@@ -348,48 +376,61 @@ export default function CollectionsContent() {
             </div>
           ) : (
             <>
-              <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
+              <div className={`grid gap-3 sm:gap-6 ${viewMode === 'grid' ? 'grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
                 {products.map((product) => (
-                  <div key={product._id} className="card group">
-                    <div className="relative overflow-hidden aspect-[4/3]">
-                      <Link href={`/product/${product.slug}`}>
+                  <div key={product._id} className="card group border border-gray-100 dark:border-slate-700/50 hover:border-amber-200 overflow-hidden">
+                    <div className="relative aspect-[4/5] bg-gray-50 dark:bg-slate-800 overflow-hidden">
+                      <Link href={`/product/${product.slug}`} className="block w-full h-full">
                         <img
-                          src={product.images?.[0] || product.image}
+                          src={product.images?.[0] || product.image || 'https://via.placeholder.com/400x500'}
                           alt={product.name}
-                          className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${viewMode === 'grid' ? '' : 'lg:h-48'
+                          className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${viewMode === 'grid' ? '' : 'lg:h-48'
                             }`}
                         />
                       </Link>
 
                       {product.comparePrice > product.price && (
-                        <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                        <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:py-1 rounded-full">
                           SALE
                         </span>
                       )}
 
-                      <button
-                        onClick={() => handleWishlistToggle(product)}
-                        className={`absolute top-3 right-3 p-2 rounded-full transition-all ${isInWishlist(product._id)
-                            ? 'bg-red-500 text-white'
-                            : 'bg-white text-gray-700 hover:bg-red-500 hover:text-white'
-                          }`}
-                      >
-                        <FiHeart className={isInWishlist(product._id) ? 'fill-current' : ''} />
-                      </button>
+                      <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex flex-col gap-2 z-10">
+                        <button
+                          onClick={(e) => { e.preventDefault(); handleWishlistToggle(product); }}
+                          title="Wishlist"
+                          className={`p-1.5 sm:p-2 rounded-full shadow-md backdrop-blur-md transition-all active:scale-90 ${isInWishlist(product._id)
+                              ? 'bg-red-500 text-white'
+                              : 'bg-white/90 text-gray-700 hover:bg-red-500 hover:text-white'
+                            }`}
+                        >
+                          <FiHeart size={16} className={isInWishlist(product._id) ? 'fill-current' : ''} />
+                        </button>
+                        <button
+                          onClick={(e) => { e.preventDefault(); handleCompareToggle(product); }}
+                          title="Compare"
+                          className={`p-1.5 sm:p-2 rounded-full shadow-md backdrop-blur-md transition-all active:scale-90 ${isInCompare(product._id)
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-white/90 text-gray-700 hover:bg-blue-500 hover:text-white'
+                            }`}
+                        >
+                          <FiRepeat size={16} />
+                        </button>
+                      </div>
 
                       {viewMode === 'grid' && (
-                        <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                        <div className="absolute inset-x-0 bottom-0 p-2 sm:p-4 translate-y-[120%] lg:translate-y-full hover:translate-y-0 lg:group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/60 to-transparent">
                           <button
-                            onClick={() => handleAddToCart(product)}
-                            className="w-full btn btn-primary text-sm py-2"
+                            onClick={(e) => { e.preventDefault(); handleAddToCart(product); }}
+                            className="w-full btn btn-primary text-xs sm:text-sm py-1.5 sm:py-2.5 shadow-xl flex items-center justify-center gap-1 sm:gap-2 active:scale-95"
                           >
-                            <FiShoppingCart className="mr-2" /> Add to Cart
+                            <FiShoppingCart size={14} className="sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Add to Cart</span><span className="sm:hidden">Add</span>
                           </button>
                         </div>
                       )}
                     </div>
 
-                    <div className="p-4">
+                    <div className="p-3 sm:p-4">
                       <Link href={`/collections?category=${product.category?.slug}`}>
                         <span className="text-xs text-accent font-medium uppercase">
                           {product.category?.name}
@@ -440,25 +481,22 @@ export default function CollectionsContent() {
                 ))}
               </div>
 
-              {pagination.pages > 1 && (
-                <div className="flex justify-center mt-12">
-                  <div className="flex items-center gap-2">
-                    {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
-                      <button
-                        key={page}
-                        onClick={() => {
-                          setPagination((prev) => ({ ...prev, page }));
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }}
-                        className={`w-10 h-10 rounded-lg transition-colors ${pagination.page === page
-                            ? 'bg-primary dark:bg-accent text-white'
-                            : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700'
-                          }`}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                  </div>
+              {pagination.page < pagination.pages && (
+                <div className="flex justify-center mt-12 mb-8">
+                  <button
+                    onClick={() => fetchProducts(true)}
+                    disabled={loadingMore}
+                    className="btn border-2 border-primary text-primary hover:bg-primary hover:text-white dark:border-accent dark:text-accent dark:hover:bg-accent dark:hover:text-white min-w-[200px]"
+                  >
+                    {loadingMore ? (
+                      <span className="flex items-center justify-center">
+                        <span className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></span>
+                        Loading...
+                      </span>
+                    ) : (
+                      'Load More'
+                    )}
+                  </button>
                 </div>
               )}
             </>

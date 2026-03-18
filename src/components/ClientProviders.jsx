@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from 'next-themes';
 import { useAuthStore, useCartStore, useWishlistStore } from '@/store';
+import CompareBar from '@/components/customer/CompareBar';
+import QuickViewModal from '@/components/customer/QuickViewModal';
 
 export default function ClientProviders({ children }) {
   const [mounted, setMounted] = useState(false);
@@ -57,6 +59,8 @@ export default function ClientProviders({ children }) {
       />
       <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false}>
         {children}
+        <CompareBar />
+        <QuickViewModal />
       </ThemeProvider>
     </>
   );

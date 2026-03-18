@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FiPlus, FiSearch, FiEdit, FiTrash2, FiEye, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiEdit, FiTrash2, FiEye, FiToggleLeft, FiToggleRight, FiCopy, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 export default function ProductsContent() {
@@ -13,6 +13,8 @@ export default function ProductsContent() {
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [selectedProductIds, setSelectedProductIds] = useState([]);
+  const [batchActionValue, setBatchActionValue] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -164,6 +166,61 @@ export default function ProductsContent() {
     }
   };
 
+  const handleBulkAction = async () => {
+    if (!batchActionValue || selectedProductIds.length === 0) return;
+    toast.error('Restricted by author');
+    return;
+
+    try {
+      const authStorage = localStorage.getItem('auth-storage');
+      const token = authStorage ? JSON.parse(authStorage).state?.token : '';
+
+      const promises = selectedProductIds.map(id => {
+        if (batchActionValue === 'delete') {
+          return fetch(`/api/products/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+        } else if (batchActionValue === 'activate' || batchActionValue === 'deactivate') {
+          return fetch(`/api/products/${id}`, {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isActive: batchActionValue === 'activate' }),
+          });
+        }
+        return Promise.resolve();
+      });
+
+      await Promise.all(promises);
+      toast.success(`Bulk action completed on ${selectedProductIds.length} products`);
+      setSelectedProductIds([]);
+      setBatchActionValue('');
+      fetchProducts();
+    } catch (err) {
+      toast.error('Failed to perform bulk action');
+    }
+  };
+
+  const handleDuplicate = (product) => {
+    setEditingProduct(null); // Force create mode
+    setFormData({
+      ...formData,
+      name: `${product.name} (Copy)`,
+      description: product.description,
+      price: product.price,
+      comparePrice: product.comparePrice || '',
+      category: product.category?._id || '',
+      subCategory: product.subCategory || '',
+      stock: product.stock,
+      brand: product.brand || '',
+      sizes: product.sizes || [],
+      colors: product.colors || [],
+      tags: product.tags || [],
+      bestSeller: false,
+      featured: false,
+      newArrival: false,
+      images: product.images || ['', '', '', ''],
+    });
+    setShowModal(true);
+  };
+
   const resetForm = () => {
     setFormData({
       name: '',
@@ -239,6 +296,39 @@ export default function ProductsContent() {
           </div>
         </div>
 
+        {selectedProductIds.length > 0 && (
+          <div className="mb-4 pt-4 border-t border-gray-100 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
+            <div className="text-sm font-medium text-blue-800 dark:text-blue-300">
+              {selectedProductIds.length} products selected
+            </div>
+            <div className="flex items-center gap-3">
+              <select
+                value={batchActionValue}
+                onChange={(e) => setBatchActionValue(e.target.value)}
+                className="input py-1.5 text-sm w-48"
+              >
+                <option value="">Choose bulk action...</option>
+                <option value="activate">Activate</option>
+                <option value="deactivate">Deactivate</option>
+                <option value="delete">Delete</option>
+              </select>
+              <button 
+                onClick={handleBulkAction}
+                disabled={!batchActionValue}
+                className="btn btn-primary py-1.5 px-4 text-sm disabled:opacity-50 shrink-0"
+              >
+                Apply
+              </button>
+              <button 
+                onClick={() => setSelectedProductIds([])}
+                className="btn btn-outline py-1.5 px-4 text-sm shrink-0"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
@@ -254,6 +344,17 @@ export default function ProductsContent() {
             <table className="w-full">
               <thead>
                 <tr className="border-b">
+                  <th className="py-3 px-4 w-12 text-center">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-gray-300 text-accent focus:ring-accent"
+                      checked={products.length > 0 && selectedProductIds.length === products.length}
+                      onChange={(e) => {
+                        if (e.target.checked) setSelectedProductIds(products.map(p => p._id));
+                        else setSelectedProductIds([]);
+                      }}
+                    />
+                  </th>
                   <th className="text-left py-3 px-4 font-medium">Product</th>
                   <th className="text-left py-3 px-4 font-medium">Category</th>
                   <th className="text-left py-3 px-4 font-medium">Price</th>
@@ -265,6 +366,17 @@ export default function ProductsContent() {
               <tbody>
                 {products.map((product) => (
                   <tr key={product._id} className="border-b hover:bg-gray-50">
+                    <td className="py-3 px-4 text-center">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-gray-300 text-accent focus:ring-accent"
+                        checked={selectedProductIds.includes(product._id)}
+                        onChange={(e) => {
+                          if (e.target.checked) setSelectedProductIds([...selectedProductIds, product._id]);
+                          else setSelectedProductIds(selectedProductIds.filter(id => id !== product._id));
+                        }}
+                      />
+                    </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         <img
@@ -290,8 +402,8 @@ export default function ProductsContent() {
                       )}
                     </td>
                     <td className="py-3 px-4">
-                      <span className={product.stock <= 5 ? 'text-red-500 font-medium' : ''}>
-                        {product.stock}
+                      <span className={product.stock <= 5 ? 'text-red-500 font-medium inline-flex items-center px-2 py-0.5 rounded text-xs bg-red-100 dark:bg-red-900/50' : ''}>
+                        {product.stock} {product.stock <= 5 && ' Low'}
                       </span>
                     </td>
                     <td className="py-3 px-4">
@@ -313,16 +425,25 @@ export default function ProductsContent() {
                         >
                           <FiEdit size={18} />
                         </button>
+                        <button
+                          onClick={() => handleDuplicate(product)}
+                          className="p-2 text-green-500 hover:bg-green-50 rounded-lg"
+                          title="Duplicate"
+                        >
+                          <FiCopy size={18} />
+                        </button>
                         <Link
                           href={`/product/${product.slug}`}
                           target="_blank"
                           className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
+                          title="View"
                         >
                           <FiEye size={18} />
                         </Link>
                         <button
                           onClick={() => handleDelete(product._id)}
                           className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                          title="Delete"
                         >
                           <FiTrash2 size={18} />
                         </button>
@@ -462,18 +583,45 @@ export default function ProductsContent() {
               <div>
                 <label className="block text-sm font-medium mb-1">Image URLs</label>
                 {formData.images.map((img, i) => (
-                  <input
-                    key={i}
-                    type="url"
-                    value={img}
-                    onChange={(e) => {
-                      const newImages = [...formData.images];
-                      newImages[i] = e.target.value;
-                      setFormData({ ...formData, images: newImages });
-                    }}
-                    placeholder={`Image URL ${i + 1}`}
-                    className="input mb-2"
-                  />
+                  <div key={i} className="flex gap-2 mb-2 items-center">
+                    <input
+                      type="url"
+                      value={img}
+                      onChange={(e) => {
+                        const newImages = [...formData.images];
+                        newImages[i] = e.target.value;
+                        setFormData({ ...formData, images: newImages });
+                      }}
+                      placeholder={`Image URL ${i + 1}`}
+                      className="input flex-1"
+                    />
+                    <div className="flex flex-col gap-1">
+                      <button 
+                        type="button"
+                        className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded disabled:opacity-30 text-gray-500"
+                        disabled={i === 0}
+                        onClick={() => {
+                          const newImages = [...formData.images];
+                          [newImages[i - 1], newImages[i]] = [newImages[i], newImages[i - 1]];
+                          setFormData({ ...formData, images: newImages });
+                        }}
+                      >
+                        <FiArrowUp size={14} />
+                      </button>
+                      <button 
+                        type="button"
+                        className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded disabled:opacity-30 text-gray-500"
+                        disabled={i === formData.images.length - 1}
+                        onClick={() => {
+                          const newImages = [...formData.images];
+                          [newImages[i], newImages[i + 1]] = [newImages[i + 1], newImages[i]];
+                          setFormData({ ...formData, images: newImages });
+                        }}
+                      >
+                        <FiArrowDown size={14} />
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
 

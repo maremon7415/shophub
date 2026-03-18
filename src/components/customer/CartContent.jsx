@@ -12,6 +12,9 @@ export default function CartContent() {
   const [coupon, setCoupon] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [applyingCoupon, setApplyingCoupon] = useState(false);
+  
+  const [swipeOffset, setSwipeOffset] = useState({});
+  const [touchStart, setTouchStart] = useState({});
 
   const { items, updateQuantity, removeItem, getTotal } = useCartStore();
   const { user } = useAuthStore();
@@ -59,6 +62,29 @@ export default function CartContent() {
     setCouponCode('');
   };
 
+  const handleTouchStart = (e, id) => {
+    setTouchStart({ ...touchStart, [id]: e.targetTouches[0].clientX });
+  };
+  
+  const handleTouchMove = (e, id) => {
+    if (!touchStart[id]) return;
+    const currentDiff = e.targetTouches[0].clientX - touchStart[id];
+    if (currentDiff < 0) {
+       setSwipeOffset({ ...swipeOffset, [id]: Math.max(-80, currentDiff) });
+    } else {
+       setSwipeOffset({ ...swipeOffset, [id]: Math.min(0, currentDiff) });
+    }
+  };
+  
+  const handleTouchEnd = (id) => {
+    if (swipeOffset[id] <= -40) {
+       setSwipeOffset({ ...swipeOffset, [id]: -80 });
+    } else {
+       setSwipeOffset({ ...swipeOffset, [id]: 0 });
+    }
+    setTouchStart({ ...touchStart, [id]: 0 });
+  };
+
   if (items.length === 0) {
     return (
       <div className="container">
@@ -86,65 +112,84 @@ export default function CartContent() {
         <div className="lg:col-span-2">
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-card overflow-hidden">
             <div className="divide-y dark:divide-slate-700">
-              {items.map((item) => (
-                <div key={`${item._id}-${item.size}-${item.color}`} className="p-6 flex gap-6">
-                  <Link href={`/product/${item.slug}`}>
-                    <img
-                      src={item.image || (item.images && item.images[0]) || '/placeholder-product.jpg'}
-                      alt={item.name}
-                      className="w-24 h-24 object-cover rounded-lg"
-                    />
-                  </Link>
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <div>
-                        <Link href={`/product/${item.slug}`} className="font-semibold dark:text-white hover:text-accent dark:hover:text-accent">
-                          {item.name}
-                        </Link>
-                        {item.size && (
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Size: {item.size}</p>
-                        )}
-                        {item.color && (
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Color: {item.color}</p>
-                        )}
+              {items.map((item) => {
+                const itemId = `${item._id}-${item.size || 'no-size'}-${item.color || 'no-color'}`;
+                return (
+                <div key={itemId} className="relative overflow-hidden group border-b last:border-0 dark:border-slate-700">
+                  <div 
+                    className="p-4 sm:p-6 flex gap-4 sm:gap-6 bg-white dark:bg-slate-800 relative z-10 transition-transform duration-200"
+                    style={{ transform: `translateX(${swipeOffset[itemId] || 0}px)` }}
+                    onTouchStart={(e) => handleTouchStart(e, itemId)}
+                    onTouchMove={(e) => handleTouchMove(e, itemId)}
+                    onTouchEnd={() => handleTouchEnd(itemId)}
+                  >
+                    <Link href={`/product/${item.slug}`} className="shrink-0">
+                      <img
+                        src={item.image || (item.images && item.images[0]) || '/placeholder-product.jpg'}
+                        alt={item.name}
+                        className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg"
+                      />
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="truncate">
+                          <Link href={`/product/${item.slug}`} className="font-semibold dark:text-white hover:text-accent dark:hover:text-accent truncate block">
+                            {item.name}
+                          </Link>
+                          {item.size && (
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Size: {item.size}</p>
+                          )}
+                          {item.color && (
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Color: {item.color}</p>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => removeItem(item._id, item.size, item.color)}
+                          className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors hidden sm:block"
+                        >
+                          <FiTrash2 size={18} />
+                        </button>
                       </div>
-                      <button
-                        onClick={() => removeItem(item._id, item.size, item.color)}
-                        className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                      >
-                        <FiTrash2 />
-                      </button>
-                    </div>
 
-                    <div className="flex items-center justify-between mt-4">
-                      <div className="flex items-center border dark:border-slate-700 rounded-lg">
-                        <button
-                          onClick={() => updateQuantity(item._id, (parseInt(item.quantity, 10) || 1) - 1, item.size, item.color)}
-                          disabled={(parseInt(item.quantity, 10) || 1) <= 1}
-                          className="p-2 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 dark:text-white"
-                        >
-                          <FiMinus size={16} />
-                        </button>
-                        <span className="px-4 font-medium dark:text-white">{parseInt(item.quantity, 10) || 1}</span>
-                        <button
-                          onClick={() => updateQuantity(item._id, (parseInt(item.quantity, 10) || 1) + 1, item.size, item.color)}
-                          className="p-2 hover:bg-gray-50 dark:hover:bg-slate-700 dark:text-white"
-                        >
-                          <FiPlus size={16} />
-                        </button>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold dark:text-white">${((parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 1)).toFixed(2)}</p>
-                        {item.comparePrice && (
-                          <p className="text-sm text-gray-500 dark:text-gray-400 line-through">
-                            ${((parseFloat(item.comparePrice) || 0) * (parseInt(item.quantity, 10) || 1)).toFixed(2)}
-                          </p>
-                        )}
+                      <div className="flex items-center justify-between mt-4">
+                        <div className="flex items-center border border-gray-200 dark:border-slate-600 rounded-lg overflow-hidden bg-gray-50 dark:bg-slate-900/50">
+                          <button
+                            onClick={() => updateQuantity(item._id, (parseInt(item.quantity, 10) || 1) - 1, item.size, item.color)}
+                            disabled={(parseInt(item.quantity, 10) || 1) <= 1}
+                            className="p-2 sm:p-3 hover:bg-gray-200 dark:hover:bg-slate-700 disabled:opacity-50 dark:text-white transition-colors active:scale-90"
+                          >
+                            <FiMinus size={14} />
+                          </button>
+                          <span className="w-8 sm:w-10 text-center font-medium dark:text-white text-sm sm:text-base">{parseInt(item.quantity, 10) || 1}</span>
+                          <button
+                            onClick={() => updateQuantity(item._id, (parseInt(item.quantity, 10) || 1) + 1, item.size, item.color)}
+                            className="p-2 sm:p-3 hover:bg-gray-200 dark:hover:bg-slate-700 dark:text-white transition-colors active:scale-90"
+                          >
+                            <FiPlus size={14} />
+                          </button>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold dark:text-white sm:text-lg">${((parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 1)).toFixed(2)}</p>
+                          {item.comparePrice > item.price && (
+                            <p className="text-sm text-gray-500 dark:text-gray-400 line-through">
+                              ${((parseFloat(item.comparePrice) || 0) * (parseInt(item.quantity, 10) || 1)).toFixed(2)}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
+                  {/* Swipe Actions Background */}
+                  <div className="absolute top-0 right-0 bottom-0 w-20 bg-red-500 flex items-center justify-center z-0">
+                    <button 
+                      onClick={() => removeItem(item._id, item.size, item.color)}
+                      className="w-full h-full flex items-center justify-center text-white active:bg-red-600 transition-colors"
+                    >
+                      <FiTrash2 size={24} />
+                    </button>
+                  </div>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
         </div>
@@ -230,6 +275,20 @@ export default function CartContent() {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* Mobile Sticky Checkout Summary */}
+      <div className="lg:hidden fixed bottom-[64px] left-0 right-0 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-gray-200 dark:border-slate-700 p-4 z-40 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] safe-area-bottom pb-6">
+        <div className="flex justify-between items-center mb-3">
+          <div className="text-gray-500 dark:text-gray-400">Total <span className="text-xs">({items.length} items)</span></div>
+          <div className="text-xl font-bold dark:text-white">${parseFloat(total || 0).toFixed(2)}</div>
+        </div>
+        <Link
+          href={user ? '/checkout' : '/login?redirect=/checkout'}
+          className="btn btn-primary w-full shadow-lg active:scale-95 py-3 flex items-center justify-center"
+        >
+          Checkout Now <FiArrowRight className="ml-2" />
+        </Link>
       </div>
     </div>
   );

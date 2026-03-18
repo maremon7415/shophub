@@ -7,6 +7,7 @@ import PromoSection from '@/components/customer/PromoSection';
 import Testimonials from '@/components/customer/Testimonials';
 import Newsletter from '@/components/customer/Newsletter';
 import MobileBottomNav from '@/components/customer/MobileBottomNav';
+import RecentProducts from '@/components/customer/RecentProducts';
 
 export default function HomePage() {
   return (
@@ -17,6 +18,7 @@ export default function HomePage() {
       <FeaturedProducts />
       <PromoSection />
       <Testimonials />
+      <RecentProducts />
       <Newsletter />
       <Footer />
       <MobileBottomNav />

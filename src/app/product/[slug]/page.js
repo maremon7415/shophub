@@ -1,14 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FiShoppingCart, FiHeart, FiEye, FiStar, FiTruck, FiRotateCcw, FiShield, FiChevronLeft, FiChevronRight, FiMinus, FiPlus } from 'react-icons/fi';
+import { FiShoppingCart, FiHeart, FiEye, FiStar, FiTruck, FiRotateCcw, FiShield, FiChevronLeft, FiChevronRight, FiMinus, FiPlus, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { useCartStore, useWishlistStore } from '@/store';
 import Navbar from '@/components/customer/Navbar';
 import Footer from '@/components/customer/Footer';
 import MobileBottomNav from '@/components/customer/MobileBottomNav';
 import toast from 'react-hot-toast';
+import ReviewSection from '@/components/customer/ReviewSection';
+import RecentProducts from '@/components/customer/RecentProducts';
+import Breadcrumb from '@/components/customer/Breadcrumb';
+import StockNotification from '@/components/customer/StockNotification';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -20,9 +24,20 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
+  const [openAccordion, setOpenAccordion] = useState('description');
+  
+  const addBtnRef = useRef(null);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
+  // Swipe logic
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const [bgPos, setBgPos] = useState('50% 50%');
+  const [isZoomed, setIsZoomed] = useState(false);
   
   const addItem = useCartStore((state) => state.addItem);
   const { items: wishlistItems, addItem: addToWishlist, removeItem: removeFromWishlist } = useWishlistStore();
+  const addRecentItem = useRecentStore((state) => state.addItem);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -30,6 +45,11 @@ export default function ProductDetailPage() {
         const res = await fetch(`/api/products/${params.slug}`);
         const data = await res.json();
         setProduct(data.product || data);
+        if (data.product) {
+          addRecentItem(data.product);
+        } else if (data._id) {
+          addRecentItem(data);
+        }
         if (data.product?.sizes?.length > 0) {
           setSelectedSize(data.product.sizes[0]);
         }
@@ -48,6 +68,20 @@ export default function ProductDetailPage() {
       fetchProduct();
     }
   }, [params.slug, router]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Show sticky bar when the main button is out of view (scrolled past)
+        setShowStickyBar(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+      },
+      { threshold: 0 }
+    );
+    if (addBtnRef.current) {
+      observer.observe(addBtnRef.current);
+    }
+    return () => observer.disconnect();
+  }, [addBtnRef.current]);
 
   const handleAddToCart = () => {
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
@@ -82,6 +116,34 @@ export default function ProductDetailPage() {
 
   const prevImage = () => {
     setSelectedImage((prev) => (prev - 1 + (product.images?.length || 1)) % (product.images?.length || 1));
+  };
+
+  const handleTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEndAction = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    
+    if (distance > 50) {
+      nextImage();
+    } else if (distance < -50) {
+      prevImage();
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (window.innerWidth < 1024) return; // Only zoom on desktop
+    const { left, top, width, height } = e.target.getBoundingClientRect();
+    const x = (e.clientX - left) / width * 100;
+    const y = (e.clientY - top) / height * 100;
+    setBgPos(`${x}% ${y}%`);
   };
 
   if (loading) {
@@ -131,33 +193,45 @@ export default function ProductDetailPage() {
       <Navbar />
       <div className="py-8 pt-20 lg:pt-8 transition-colors">
         <div className="container">
-          <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-          <Link href="/" className="hover:text-accent">Home</Link>
-          <span>/</span>
-          <Link href="/collections" className="hover:text-accent">Collections</Link>
-          <span>/</span>
-          <Link href={`/collections?category=${product.category?.slug}`} className="hover:text-accent">
-            {product.category?.name || 'Products'}
-          </Link>
-          <span>/</span>
-          <span className="text-gray-900">{product.name}</span>
-        </nav>
+          <Breadcrumb 
+            items={[
+              { label: 'Collections', href: '/collections' },
+              { label: product.category?.name || 'Products', href: `/collections?category=${product.category?.slug}` },
+              { label: product.name }
+            ]}
+          />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           <div className="relative">
-            <div className="relative overflow-hidden rounded-2xl bg-white">
+            <div 
+              className="relative overflow-hidden rounded-2xl bg-white group cursor-zoom-in shadow-sm lg:shadow-none"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEndAction}
+              onMouseMove={handleMouseMove}
+              onMouseEnter={() => setIsZoomed(true)}
+              onMouseLeave={() => setIsZoomed(false)}
+            >
               <img
                 src={images[selectedImage]}
                 alt={product.name}
-                className="w-full h-[500px] object-cover"
+                className={`w-full h-[400px] sm:h-[500px] lg:h-[600px] object-cover transition-opacity duration-300 ${isZoomed && window.innerWidth >= 1024 ? 'opacity-0' : 'opacity-100'}`}
+              />
+              <div 
+                className={`hidden lg:block absolute inset-0 bg-no-repeat transition-opacity duration-300 pointer-events-none ${isZoomed ? 'opacity-100' : 'opacity-0'}`}
+                style={{
+                  backgroundImage: `url(${images[selectedImage]})`,
+                  backgroundPosition: bgPos,
+                  backgroundSize: '200%',
+                }}
               />
               {product.comparePrice > product.price && (
-                <span className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                <span className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">
                   SALE
                 </span>
               )}
               {product.newArrival && (
-                <span className="absolute top-4 right-4 bg-accent text-white px-3 py-1 rounded-full text-sm font-medium">
+                <span className="absolute top-4 right-4 bg-accent text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">
                   NEW
                 </span>
               )}
@@ -215,6 +289,8 @@ export default function ProductDetailPage() {
               )}
             </div>
 
+            <StockNotification product={product} />
+
             <div className="flex items-baseline gap-3 mb-6">
               <span className="text-3xl font-bold text-accent">${(parseFloat(product.price) || 0).toFixed(2)}</span>
               {parseFloat(product.comparePrice) > parseFloat(product.price) && (
@@ -253,20 +329,30 @@ export default function ProductDetailPage() {
             {product.colors && product.colors.length > 0 && (
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
-                <div className="flex flex-wrap gap-2">
-                  {product.colors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={`px-4 py-2 border rounded-lg transition-all ${
-                        selectedColor === color
-                          ? 'border-accent bg-accent text-white'
-                          : 'border-gray-300 hover:border-accent'
-                      }`}
-                    >
-                      {color}
-                    </button>
-                  ))}
+                <div className="flex flex-wrap gap-3">
+                  {product.colors.map((color) => {
+                    const isCommonColor = ['black', 'white', 'gray', 'red', 'blue', 'green', 'yellow', 'pink', 'purple', 'orange', 'navy', 'brown'].includes(color.toLowerCase());
+                    const hexMatch = color.match(/^#(?:[0-9a-fA-F]{3}){1,2}$/);
+                    const isColorCode = isCommonColor || hexMatch;
+                    
+                    return (
+                      <button
+                        key={color}
+                        onClick={() => setSelectedColor(color)}
+                        className={`relative rounded-full transition-all flex items-center justify-center ${
+                          isColorCode ? 'w-10 h-10 border-2' : 'px-4 py-2 border-2'
+                        } ${
+                          selectedColor === color
+                            ? 'border-accent shadow-md scale-110 z-10'
+                            : 'border-gray-300 hover:scale-105'
+                        }`}
+                        style={isColorCode ? { backgroundColor: hexMatch ? color : color.toLowerCase() } : {}}
+                        title={color}
+                      >
+                        {!isColorCode && <span className="text-sm font-medium">{color}</span>}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -290,11 +376,11 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            <div className="flex gap-4 mb-6">
+            <div className="flex gap-4 mb-6" ref={addBtnRef}>
               <button
                 onClick={handleAddToCart}
                 disabled={product.stock === 0}
-                className="flex-1 btn btn-primary py-4 text-lg"
+                className="flex-1 btn btn-primary py-4 text-lg active:scale-95 transition-transform"
               >
                 <FiShoppingCart className="mr-2" /> Add to Cart
               </button>
@@ -327,98 +413,142 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-card p-6 mb-12">
-          <div className="flex border-b mb-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-card p-0 sm:p-6 mb-12 overflow-hidden">
+          {/* Desktop Tabs */}
+          <div className="hidden sm:flex border-b border-gray-100 dark:border-slate-700 mb-6">
             <button
               onClick={() => setActiveTab('description')}
-              className={`px-6 py-3 font-medium border-b-2 transition-all ${
+              className={`px-6 py-4 font-medium border-b-2 transition-all hover:text-accent ${
                 activeTab === 'description'
                   ? 'border-accent text-accent'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 dark:text-gray-400'
               }`}
             >
               Description
             </button>
             <button
-              onClick={() => setActiveTab('reviews')}
-              className={`px-6 py-3 font-medium border-b-2 transition-all ${
-                activeTab === 'reviews'
-                  ? 'border-accent text-accent'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Reviews ({product.reviewCount || 0})
-            </button>
-            <button
               onClick={() => setActiveTab('shipping')}
-              className={`px-6 py-3 font-medium border-b-2 transition-all ${
+              className={`px-6 py-4 font-medium border-b-2 transition-all hover:text-accent ${
                 activeTab === 'shipping'
                   ? 'border-accent text-accent'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 dark:text-gray-400'
               }`}
             >
               Shipping Info
             </button>
           </div>
 
-          {activeTab === 'description' && (
-            <div className="prose max-w-none">
-              <p className="text-gray-600 leading-relaxed">{product.description}</p>
-              {product.features && product.features.length > 0 && (
-                <div className="mt-4">
-                  <h3 className="font-semibold mb-2">Key Features:</h3>
-                  <ul className="list-disc list-inside text-gray-600">
-                    {product.features.map((feature, index) => (
-                      <li key={index}>{feature}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
+          {/* Desktop Content */}
+          <div className="hidden sm:block">
+            {activeTab === 'description' && (
+              <div className="prose dark:prose-invert max-w-none">
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-line">{product.description}</p>
+                {product.features && product.features.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="font-semibold mb-4 text-gray-900 dark:text-white">Key Features</h3>
+                    <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2">
+                      {product.features.map((feature, index) => (
+                        <li key={index}>{feature}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
 
-          {activeTab === 'reviews' && (
-            <div>
-              {product.reviews && product.reviews.length > 0 ? (
-                <div className="space-y-4">
-                  {product.reviews.map((review, index) => (
-                    <div key={index} className="border-b pb-4 last:border-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center text-white text-sm">
-                            {review.user?.name?.charAt(0) || 'U'}
-                          </div>
-                          <span className="font-medium">{review.user?.name || 'Anonymous'}</span>
-                        </div>
-                        <div className="flex text-yellow-400">
-                          {[...Array(5)].map((_, i) => (
-                            <FiStar
-                              key={i}
-                              className={`${i < review.rating ? 'fill-current' : ''}`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-gray-600">{review.comment}</p>
-                      <p className="text-xs text-gray-400 mt-2">{new Date(review.createdAt).toLocaleDateString()}</p>
+            {activeTab === 'shipping' && (
+              <div className="space-y-4 text-gray-600 dark:text-gray-300">
+                <div className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-slate-900 rounded-xl">
+                   <FiTruck className="text-2xl text-accent shrink-0 mt-1" />
+                   <div>
+                     <h4 className="font-medium text-gray-900 dark:text-white mb-1">Standard & Express Delivery</h4>
+                     <p>Free standard shipping on orders over $100. Express shipping options available at checkout.</p>
+                     <ul className="mt-2 text-sm text-gray-500">
+                       <li>Standard: 5-7 business days</li>
+                       <li>Express: 2-3 business days</li>
+                     </ul>
+                   </div>
+                </div>
+                <div className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-slate-900 rounded-xl">
+                   <FiRotateCcw className="text-2xl text-accent shrink-0 mt-1" />
+                   <div>
+                     <h4 className="font-medium text-gray-900 dark:text-white mb-1">30-Day Returns</h4>
+                     <p>30-day return policy for unused items in original packaging. Some exclusions apply.</p>
+                   </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Accordion */}
+          <div className="sm:hidden divide-y divide-gray-100 dark:divide-slate-700">
+            {/* Description Accordion */}
+            <div className="group">
+              <button 
+                onClick={() => setOpenAccordion(openAccordion === 'description' ? '' : 'description')}
+                className="w-full flex items-center justify-between p-4 font-medium text-gray-900 dark:text-white bg-white dark:bg-slate-800"
+              >
+                Description
+                {openAccordion === 'description' ? <FiChevronUp /> : <FiChevronDown />}
+              </button>
+              <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === 'description' ? 'max-h-[1000px] pb-6' : 'max-h-0'}`}>
+                <div className="prose dark:prose-invert max-w-none text-sm">
+                  <p className="text-gray-600 dark:text-gray-300 whitespace-pre-line leading-relaxed">{product.description}</p>
+                  {product.features && product.features.length > 0 && (
+                    <div className="mt-4">
+                      <h3 className="font-semibold mb-2">Key Features</h3>
+                      <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-1">
+                        {product.features.map((feature, index) => (
+                          <li key={index}>{feature}</li>
+                        ))}
+                      </ul>
                     </div>
-                  ))}
+                  )}
                 </div>
-              ) : (
-                <p className="text-gray-500 text-center py-8">No reviews yet</p>
-              )}
+              </div>
             </div>
-          )}
 
-          {activeTab === 'shipping' && (
-            <div className="space-y-4 text-gray-600">
-              <p>Free standard shipping on orders over $100. Express shipping options available at checkout.</p>
-              <p>Standard delivery: 5-7 business days</p>
-              <p>Express delivery: 2-3 business days</p>
-              <p>30-day return policy for unused items in original packaging.</p>
+            {/* Shipping Accordion */}
+            <div className="group">
+              <button 
+                onClick={() => setOpenAccordion(openAccordion === 'shipping' ? '' : 'shipping')}
+                className="w-full flex items-center justify-between p-4 font-medium text-gray-900 dark:text-white bg-white dark:bg-slate-800"
+              >
+                Shipping Info
+                {openAccordion === 'shipping' ? <FiChevronUp /> : <FiChevronDown />}
+              </button>
+              <div className={`px-4 overflow-hidden transition-all duration-300 ${openAccordion === 'shipping' ? 'max-h-[1000px] pb-6' : 'max-h-0'}`}>
+                <div className="space-y-4 text-sm text-gray-600 dark:text-gray-300 pt-2">
+                  <p>Free standard shipping on orders over $100.</p>
+                  <p>Standard delivery: 5-7 business days</p>
+                  <p>Express delivery: 2-3 business days</p>
+                  <p>30-day return policy for unused items.</p>
+                </div>
+              </div>
             </div>
-          )}
+            </div>
+          </div>
+          
+          <ReviewSection productId={product._id} />
+          <RecentProducts currentProductId={product._id} />
+          
         </div>
+      </div>
+      
+      {/* Mobile Sticky Add to Cart */}
+      <div className={`lg:hidden fixed bottom-[64px] left-0 right-0 z-40 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-gray-200 dark:border-slate-700 p-3 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] safe-area-bottom transition-transform duration-300 ${showStickyBar ? 'translate-y-0' : 'translate-y-full'}`}>
+        <div className="flex gap-3 justify-between items-center max-w-md mx-auto">
+          <div className="flex-1">
+             <div className="text-xs text-gray-500 mb-0.5">{product.name}</div>
+             <div className="font-bold text-accent">${(parseFloat(product.price) * quantity).toFixed(2)}</div>
+          </div>
+          <button
+            onClick={handleAddToCart}
+            disabled={product.stock === 0}
+            className="btn btn-primary py-2 px-6 active:scale-95 shadow-md flex-shrink-0"
+          >
+            Add to Cart
+          </button>
         </div>
       </div>
       <Footer />

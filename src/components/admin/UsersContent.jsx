@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FiSearch, FiEdit, FiTrash2, FiToggleLeft, FiToggleRight, FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiShoppingBag } from 'react-icons/fi';
+import { FiSearch, FiEdit, FiTrash2, FiToggleLeft, FiToggleRight, FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiShoppingBag, FiStar, FiActivity, FiDollarSign } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 export default function UsersContent() {
@@ -10,6 +10,7 @@ export default function UsersContent() {
   const [search, setSearch] = useState('');
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [selectedUser, setSelectedUser] = useState(null);
+  const [userStats, setUserStats] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editData, setEditData] = useState({
     name: '',
@@ -160,7 +161,11 @@ export default function UsersContent() {
                 {users.map((user) => (
                   <div
                     key={user._id}
-                    onClick={() => setSelectedUser(user)}
+                    onClick={() => {
+                        setSelectedUser(user);
+                        setUserStats(null);
+                        getUserStats(user._id).then(stats => setUserStats(stats));
+                    }}
                     className={`p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors ${selectedUser?._id === user._id ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
                   >
                     <div className="flex items-center justify-between">
@@ -244,13 +249,13 @@ export default function UsersContent() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 text-sm">
                     <FiMail className="text-gray-400" />
-                    <span>{selectedUser.email}</span>
+                    <a href={`mailto:${selectedUser.email}`} className="hover:text-blue-500 hover:underline transition-colors">{selectedUser.email}</a>
                   </div>
                   
                   {selectedUser.phone && (
                     <div className="flex items-center gap-3 text-sm">
                       <FiPhone className="text-gray-400" />
-                      <span>{selectedUser.phone}</span>
+                      <a href={`tel:${selectedUser.phone}`} className="hover:text-blue-500 hover:underline transition-colors">{selectedUser.phone}</a>
                     </div>
                   )}
                   
@@ -260,7 +265,7 @@ export default function UsersContent() {
                   </div>
                 </div>
 
-                <div className="border-t pt-4">
+                <div className="border-t dark:border-slate-700 pt-4 pb-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-500">Role</span>
                     <span className={`badge ${
@@ -278,6 +283,92 @@ export default function UsersContent() {
                     </span>
                   </div>
                 </div>
+
+                {/* User Stats & Activity */}
+                {userStats ? (
+                  <div className="space-y-6 animate-fade-in">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-xl">
+                        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 mb-1">
+                          <FiShoppingBag size={14} />
+                          <span className="text-xs uppercase font-semibold">Orders</span>
+                        </div>
+                        <p className="text-2xl font-bold">{userStats.totalOrders}</p>
+                      </div>
+                      <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-xl">
+                        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 mb-1">
+                          <FiDollarSign size={14} />
+                          <span className="text-xs uppercase font-semibold">Total Spent</span>
+                        </div>
+                        <p className="text-2xl font-bold">${userStats.totalSpent}</p>
+                      </div>
+                    </div>
+
+                    {userStats.recentOrders?.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <FiActivity className="text-gray-400" />
+                          <h4 className="font-semibold text-sm">Recent Orders</h4>
+                        </div>
+                        <div className="space-y-3">
+                          {userStats.recentOrders.map(order => (
+                            <div key={order._id} className="flex justify-between items-center bg-gray-50 dark:bg-slate-700/30 p-3 rounded-lg text-sm">
+                              <div>
+                                <p className="font-medium">{order.orderNumber}</p>
+                                <p className="text-gray-500 text-xs">{new Date(order.createdAt).toLocaleDateString()}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-medium">${order.total}</p>
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full capitalize ${
+                                  order.status === 'delivered' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                                  order.status === 'cancelled' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                  'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                                }`}>
+                                  {order.status}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {userStats.recentReviews?.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <FiStar className="text-gray-400" />
+                          <h4 className="font-semibold text-sm">Recent Reviews</h4>
+                        </div>
+                        <div className="space-y-3">
+                          {userStats.recentReviews.map(review => (
+                            <div key={review._id} className="bg-gray-50 dark:bg-slate-700/30 p-3 rounded-lg text-sm">
+                              <div className="flex items-center justify-between mb-1">
+                                <div className="flex text-amber-400 text-xs">
+                                  {[...Array(5)].map((_, i) => (
+                                    <FiStar key={i} className={i < review.rating ? 'fill-current' : 'text-gray-300'} />
+                                  ))}
+                                </div>
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full capitalize ${
+                                  review.status === 'approved' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                                  review.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                                  'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                }`}>
+                                  {review.status}
+                                </span>
+                              </div>
+                              <p className="text-gray-600 dark:text-gray-300 line-clamp-2 mt-1">{review.comment}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="py-8 text-center space-y-3 flex flex-col items-center justify-center animate-pulse">
+                     <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+                     <span className="text-sm text-gray-500">Loading activity...</span>
+                  </div>
+                )}
               </div>
             </div>
           ) : (

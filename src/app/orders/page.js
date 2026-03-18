@@ -6,6 +6,7 @@ import { FiPackage, FiShoppingBag, FiChevronRight } from 'react-icons/fi';
 import Navbar from '@/components/customer/Navbar';
 import Footer from '@/components/customer/Footer';
 import MobileBottomNav from '@/components/customer/MobileBottomNav';
+import Breadcrumb from '@/components/customer/Breadcrumb';
 import { useAuthStore } from '@/store';
 import { useRouter } from 'next/navigation';
 
@@ -54,6 +55,11 @@ export default function OrdersPage() {
       <Navbar />
       
       <main className="flex-1 container pt-24 pb-16">
+        <Breadcrumb 
+          items={[
+            { label: 'My Orders' }
+          ]}
+        />
         <h1 className="text-3xl font-bold mb-8 dark:text-white">My Orders</h1>
         
         {loading ? (

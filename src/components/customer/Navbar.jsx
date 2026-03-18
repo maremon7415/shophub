@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { useState, useEffect, useRef } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { useCartStore, useWishlistStore, useAuthStore } from '@/store';
-import { FiShoppingCart, FiHeart, FiMenu, FiX, FiUser, FiSearch, FiChevronDown } from 'react-icons/fi';
+import { FiShoppingCart, FiHeart, FiMenu, FiX, FiUser, FiSearch, FiChevronDown, FiBell, FiArrowRight } from 'react-icons/fi';
 import { FaSignOutAlt } from 'react-icons/fa';
 
 export default function Navbar() {
@@ -13,8 +13,12 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isCategoriesExpanded, setIsCategoriesExpanded] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState([]);
   const pathname = usePathname();
+  const router = useRouter();
+  const searchInputRef = useRef(null);
   const isHomePage = pathname === '/';
 
   const cartItems = useCartStore((state) => state.items);
@@ -46,9 +50,24 @@ export default function Navbar() {
       .catch((err) => console.error('Failed to load categories:', err));
   }, []);
 
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
+
   const handleLogout = () => {
     logout();
-    window.location.href = '/';
+    router.push('/');
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setIsSearchOpen(false);
+      setSearchQuery('');
+    }
   };
 
   const navLinkClass = (path) => {
@@ -97,23 +116,39 @@ export default function Navbar() {
                 }`}>
                   Categories <FiChevronDown className="ml-1 group-hover:rotate-180 transition-transform duration-300" />
                 </button>
-                <div className="absolute top-[80%] left-0 mt-2 w-56 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-xl shadow-hover opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:top-full transition-all duration-300 transform origin-top border border-gray-100 dark:border-slate-700/50">
-                  <div className="py-2">
-                    <Link
-                      href="/collections"
-                      className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-amber-50 dark:hover:bg-slate-700/50 hover:text-accent transition-colors font-medium border-b border-gray-100 dark:border-slate-700/50"
-                    >
-                      Shop All
-                    </Link>
-                    {categories?.map((category) => (
+                <div className="absolute top-[80%] -left-6 mt-2 w-[480px] bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-hover opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:top-full transition-all duration-300 transform origin-top border border-gray-100 dark:border-slate-700/50 overflow-hidden">
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-slate-700">
+                      <h3 className="font-bold text-gray-900 dark:text-white">All Categories</h3>
                       <Link
-                        key={category._id}
-                        href={`/collections?category=${category.slug}`}
-                        className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-slate-700/50 hover:text-accent transition-colors"
+                        href="/collections"
+                        className="text-sm text-accent hover:text-amber-600 dark:hover:text-amber-400 font-medium flex items-center gap-1"
                       >
-                        {category.name}
+                        Shop All <FiArrowRight size={14} />
                       </Link>
-                    ))}
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                      {categories?.slice(0, 8).map((category) => (
+                        <Link
+                          key={category._id}
+                          href={`/collections?category=${category.slug}`}
+                          className="group/item flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-slate-700 flex items-center justify-center overflow-hidden shrink-0">
+                             {category.image ? (
+                               <img src={category.image} alt={category.name} className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-300" />
+                             ) : (
+                               <div className="w-full h-full text-amber-500 flex items-center justify-center font-bold text-lg leading-none">
+                                 {category.name.charAt(0)}
+                               </div>
+                             )}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white group-hover/item:text-accent transition-colors">{category.name}</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -131,9 +166,34 @@ export default function Navbar() {
                 <ThemeToggle />
               </div> */}
 
-              <Link href="/search" className={iconClass}>
-                <FiSearch size={22} />
-              </Link>
+              {/* Desktop Animated Search */}
+              <div className="relative flex items-center">
+                <form 
+                  onSubmit={handleSearch}
+                  className={`flex items-center transition-all duration-300 overflow-hidden ${isSearchOpen ? 'w-64 opacity-100 mr-2 border-b border-gray-300 dark:border-gray-600' : 'w-0 opacity-0 border-transparent'}`}
+                >
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search products..."
+                    className="w-full bg-transparent outline-none py-1 text-sm text-gray-900 dark:text-white placeholder-gray-500"
+                  />
+                  {searchQuery && (
+                    <button type="button" onClick={() => setSearchQuery('')} className="text-gray-400 hover:text-gray-600">
+                      <FiX size={14} />
+                    </button>
+                  )}
+                </form>
+                <button 
+                  onClick={() => setIsSearchOpen(!isSearchOpen)} 
+                  className={iconClass}
+                  aria-label="Toggle search"
+                >
+                  <FiSearch size={22} className={isSearchOpen ? 'text-accent' : ''} />
+                </button>
+              </div>
 
               <Link href="/wishlist" className={iconClass}>
                 <FiHeart size={22} />
@@ -153,43 +213,58 @@ export default function Navbar() {
                 )}
               </Link>
 
+              {user && (
+                <button className={iconClass + ' relative group'}>
+                  <FiBell size={22} className="group-hover:animate-swing" />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-900 animate-pulse"></span>
+                </button>
+              )}
+
               {user ? (
                 <div className="relative">
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className={`flex items-center space-x-2 p-2 transition-colors ${
+                    className={`flex items-center space-x-2 p-1.5 transition-colors ${
                       isHomePage && !isScrolled
                         ? 'text-white/90 hover:text-white'
                         : 'text-gray-700 hover:text-accent'
                     }`}
                   >
-                    <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center text-white font-medium shadow-soft">
-                      {user.name?.charAt(0).toUpperCase()}
+                    <div className="w-9 h-9 bg-linear-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white font-medium shadow-soft ring-2 ring-white/20 hover:scale-105 transition-transform overflow-hidden">
+                      {user.image ? (
+                        <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                      ) : (
+                        user.name?.charAt(0).toUpperCase()
+                      )}
                     </div>
                   </button>
                   {isUserMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-hover py-2 animate-fade-in border border-gray-100 dark:border-slate-700">
-                      <div className="px-4 py-3 border-b border-gray-100 dark:border-slate-700">
-                        <p className="font-medium text-gray-900 dark:text-white">{user.name}</p>
+                    <div className="absolute right-0 mt-2 w-64 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-hover py-2 animate-fade-in border border-gray-100 dark:border-slate-700/50">
+                      <div className="px-5 py-4 border-b border-gray-100 dark:border-slate-700/50">
+                        <p className="font-bold text-gray-900 dark:text-white truncate">{user.name}</p>
                         <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
                       </div>
-                      <Link href="/account" className="block px-4 py-2 mt-1 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:text-accent dark:hover:text-accent transition-colors">
-                        <FiUser className="inline mr-2" /> My Account
-                      </Link>
-                      <Link href="/orders" className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:text-accent dark:hover:text-accent transition-colors">
-                        My Orders
-                      </Link>
-                      {user.role === 'admin' && (
-                        <Link href="/admin/dashboard" className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 hover:text-accent dark:hover:text-accent transition-colors">
-                          Admin Panel
+                      <div className="py-2 px-3">
+                        <Link href="/account" className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-slate-700/50 hover:text-accent dark:hover:text-accent rounded-xl transition-colors">
+                          <FiUser className="mr-3" size={16} /> My Account
                         </Link>
-                      )}
-                      <button
-                        onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 mt-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                      >
-                        <FaSignOutAlt className="inline mr-2" /> Logout
-                      </button>
+                        <Link href="/account?tab=orders" className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-slate-700/50 hover:text-accent dark:hover:text-accent rounded-xl transition-colors">
+                          <FiShoppingCart className="mr-3" size={16} /> My Orders
+                        </Link>
+                        {user.role === 'admin' && (
+                          <Link href="/admin/dashboard" className="flex items-center px-3 py-2.5 text-sm font-medium text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-slate-700/50 rounded-xl transition-colors mt-1 border-t border-gray-50 dark:border-slate-700 pt-3">
+                            <span className="w-2 h-2 rounded-full bg-amber-500 mr-3 animate-pulse"></span> Admin Dashboard
+                          </Link>
+                        )}
+                      </div>
+                      <div className="px-3 pb-1 border-t border-gray-100 dark:border-slate-700/50 pt-2">
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"
+                        >
+                          <FaSignOutAlt className="mr-3" size={16} /> Logout
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -268,8 +343,12 @@ export default function Navbar() {
           {user ? (
             <div className="p-6 bg-white dark:bg-slate-800/80 border-b border-gray-100 dark:border-slate-800">
               <div className="flex items-center space-x-4 mb-4">
-                <div className="w-14 h-14 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl shadow-lg flex items-center justify-center text-white font-bold text-xl ring-4 ring-orange-500/20">
-                  {user.name?.charAt(0).toUpperCase()}
+                <div className="w-14 h-14 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl shadow-lg flex items-center justify-center text-white font-bold text-xl ring-4 ring-orange-500/20 overflow-hidden">
+                  {user.image ? (
+                    <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    user.name?.charAt(0).toUpperCase()
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-lg text-gray-900 dark:text-white truncate">{user.name}</h3>

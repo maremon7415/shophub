@@ -229,6 +229,37 @@ export default function OrderTrackingPage() {
             </div>
           </div>
 
+          {order.trackingNumber && (
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-card p-6 mb-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center gap-3 text-gray-800 dark:text-white">
+                  <FiPackage className="text-2xl text-accent" />
+                  <div>
+                    <h3 className="font-semibold text-lg">Tracking Information</h3>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      Carrier: <span className="font-medium text-gray-900 dark:text-gray-300">{order.carrier || 'Standard Shipping'}</span>
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 bg-gray-50 dark:bg-slate-700/50 p-3 rounded-xl border border-gray-100 dark:border-slate-600">
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Tracking Number</p>
+                    <p className="font-mono font-bold text-gray-900 dark:text-white text-lg tracking-wider">{order.trackingNumber}</p>
+                  </div>
+                  {/* Generic mock tracking URL button, could be dynamic based on carrier later */}
+                  <a 
+                    href={`https://tracker.example.com/${order.trackingNumber}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="btn btn-outline btn-sm shadow-sm"
+                  >
+                    Track Package
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-card p-6">
               <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Shipping Address</h2>

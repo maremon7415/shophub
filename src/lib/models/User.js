@@ -23,6 +23,14 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
   wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   isActive: { type: Boolean, default: true },
+  bio: { type: String, default: '' },
+  profileUrl: { type: String, default: '' },
+  isProfilePublic: { type: Boolean, default: true },
+  socialLinks: {
+    instagram: { type: String, default: '' },
+    twitter: { type: String, default: '' },
+    facebook: { type: String, default: '' },
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
